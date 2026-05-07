@@ -122,7 +122,7 @@ const BASE_URL =
 
 // 🔥 Auto redirect if already logged in
 if (localStorage.getItem("token")) {
-    window.location.href = "index.html";
+    window.location.href = "dashboard.html";
 }
 
 async function login() {
@@ -177,7 +177,7 @@ async function login() {
                 data.access_token
             );
 
-            window.location.href = "index.html";
+            window.location.href = "dashboard.html";
 
         } else {
 
