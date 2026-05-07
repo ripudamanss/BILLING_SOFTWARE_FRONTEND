@@ -152,7 +152,7 @@
 
     <table id="table" style="display: none;">
         <tr>
-            <th>ID</th>
+            <th>BILL NO</th>
             <th>Customer</th>
             <th>Total (₹)</th>
             <th>Actions</th>
@@ -167,62 +167,6 @@
         }
         // const BASE_URL = "http://127.0.0.1:8001";
         const BASE_URL = "https://billing-software-backend-04do.onrender.com";
-
-
-        // async function loadBills() {
-        //     document.getElementById("loadingBox").style.display = "block";
-        //     document.getElementById("table").style.display = "none";
-        //     const res = await fetch(`${BASE_URL}/bills`, {
-        //         headers: {
-        //             "Authorization": "Bearer " + localStorage.getItem("token")
-        //         }
-        //     });
-
-        //     const data = await res.json();
-
-        //     const table = document.getElementById("table");
-        //     const emptyMsg = document.getElementById("emptyMsg");
-
-        //     // 🔥 ADDED: reset table to avoid duplicates
-        //     table.innerHTML = `
-        //         <tr>
-        //             <th>ID</th>
-        //             <th>Customer</th>
-        //             <th>Total (₹)</th>
-        //             <th>Actions</th>
-        //         </tr>
-        //     `;
-
-        //     if (data.length === 0) {
-        //         emptyMsg.innerText = "No bills found";
-        //         return;
-        //     }
-
-        //     document.getElementById("loadingBox").style.display = "none";
-        //     document.getElementById("table").style.display = "table";
-
-        //     data.forEach(bill => {
-        //         const row = table.insertRow();
-
-        //         row.innerHTML = `
-        //             <td>${bill.id}</td>
-        //             <td>${bill.customer}</td>
-
-        //             <!-- 🔥 ADDED: safe total -->
-        //             <td>${bill.total ? bill.total.toFixed(2) : "0.00"}</td>
-
-        //             <td>
-        //                 <button class="pdf-btn" onclick="viewPDF(${bill.id})">View</button>
-
-        //                 <!-- 🔥 ADDED: download button -->
-        //                 <button class="pdf-btn" onclick="downloadPDF(${bill.id})">Download</button>
-
-        //                 <button class="edit-btn" onclick="editBill(${bill.id})">Edit</button>
-        //                 <button class="delete-btn" onclick="deleteBill(${bill.id})">Delete</button>
-        //             </td>
-        //         `;
-        //     });
-        // }
 
         async function loadBills() {
             const loadingBox =
