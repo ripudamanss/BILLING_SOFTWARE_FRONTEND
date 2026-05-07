@@ -105,18 +105,52 @@
             margin-top: 20px;
             color: #777;
         }
+
+        .loading-box {
+            text-align: center;
+            margin-top: 30px;
+            color: #555;
+            transition: 0.3s;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #ddd;
+            border-top: 5px solid #4CAF50;
+            border-radius: 50%;
+            margin: auto auto 15px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
 <body>
 
     <h2>All Bills</h2>
+    <div id="loadingBox" class="loading-box">
+
+        <div class="spinner"></div>
+
+        <p>Loading bills...</p>
+
+    </div>
 
     <div class="top-bar">
         <button onclick="window.location.href='index.html'">+ Create New Bill</button>
     </div>
 
-    <table id="table">
+    <table id="table" style="display: none;">
         <tr>
             <th>ID</th>
             <th>Customer</th>
@@ -133,56 +167,175 @@
         }
         // const BASE_URL = "http://127.0.0.1:8001";
         const BASE_URL = "https://billing-software-backend-04do.onrender.com";
-        
+
+
+        // async function loadBills() {
+        //     document.getElementById("loadingBox").style.display = "block";
+        //     document.getElementById("table").style.display = "none";
+        //     const res = await fetch(`${BASE_URL}/bills`, {
+        //         headers: {
+        //             "Authorization": "Bearer " + localStorage.getItem("token")
+        //         }
+        //     });
+
+        //     const data = await res.json();
+
+        //     const table = document.getElementById("table");
+        //     const emptyMsg = document.getElementById("emptyMsg");
+
+        //     // 🔥 ADDED: reset table to avoid duplicates
+        //     table.innerHTML = `
+        //         <tr>
+        //             <th>ID</th>
+        //             <th>Customer</th>
+        //             <th>Total (₹)</th>
+        //             <th>Actions</th>
+        //         </tr>
+        //     `;
+
+        //     if (data.length === 0) {
+        //         emptyMsg.innerText = "No bills found";
+        //         return;
+        //     }
+
+        //     document.getElementById("loadingBox").style.display = "none";
+        //     document.getElementById("table").style.display = "table";
+
+        //     data.forEach(bill => {
+        //         const row = table.insertRow();
+
+        //         row.innerHTML = `
+        //             <td>${bill.id}</td>
+        //             <td>${bill.customer}</td>
+
+        //             <!-- 🔥 ADDED: safe total -->
+        //             <td>${bill.total ? bill.total.toFixed(2) : "0.00"}</td>
+
+        //             <td>
+        //                 <button class="pdf-btn" onclick="viewPDF(${bill.id})">View</button>
+
+        //                 <!-- 🔥 ADDED: download button -->
+        //                 <button class="pdf-btn" onclick="downloadPDF(${bill.id})">Download</button>
+
+        //                 <button class="edit-btn" onclick="editBill(${bill.id})">Edit</button>
+        //                 <button class="delete-btn" onclick="deleteBill(${bill.id})">Delete</button>
+        //             </td>
+        //         `;
+        //     });
+        // }
 
         async function loadBills() {
-            const res = await fetch(`${BASE_URL}/bills`, {
-                headers: {
-                    "Authorization": "Bearer " + localStorage.getItem("token")
-                }
-            });
+            const loadingBox =
+                document.getElementById("loadingBox");
+            const table =
+                document.getElementById("table");
+            const emptyMsg =
+                document.getElementById("emptyMsg");
 
-            const data = await res.json();
+            // 🔥 Start loading state
+            loadingBox.style.display = "block";
+            table.style.display = "none";
+            emptyMsg.innerText = "";
 
-            const table = document.getElementById("table");
-            const emptyMsg = document.getElementById("emptyMsg");
+            try {
+                const res = await fetch(
+                    `${BASE_URL}/bills`,
+                    {
+                        headers: {
+                            "Authorization":
+                                "Bearer " +
+                                localStorage.getItem("token")
+                        }
+                    }
+                );
 
-            // 🔥 ADDED: reset table to avoid duplicates
-            table.innerHTML = `
-                <tr>
-                    <th>ID</th>
-                    <th>Customer</th>
-                    <th>Total (₹)</th>
-                    <th>Actions</th>
-                </tr>
+                const data = await res.json();
+                console.log("BILLS RESPONSE:", data);
+
+                // 🔥 Handle backend failure
+
+                if (!res.ok) {
+                    loadingBox.innerHTML = `
+                <p style="color:red; font-weight:bold;">
+                    Failed to load bills
+                </p>
             `;
 
-            if (data.length === 0) {
-                emptyMsg.innerText = "No bills found";
-                return;
+                    return;
+                }
+                // 🔥 Reset table
+
+                table.innerHTML = `
+            <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Total (₹)</th>
+                <th>Actions</th>
+            </tr>
+        `;
+
+                // 🔥 Empty database case
+
+                if (data.length === 0) {
+                    loadingBox.style.display = "none";
+                    emptyMsg.innerText =
+                        "No bills found";
+                    return;
+                }
+
+                // 🔥 Show table only after data arrives
+                loadingBox.style.display = "none";
+                table.style.display = "table";
+
+                // 🔥 Insert rows
+                data.forEach(bill => {
+                    const row = table.insertRow();
+                    row.innerHTML = `
+                <td>${bill.id}</td>
+                <td>${bill.customer}</td>
+                <td>
+                    ${bill.total
+                            ? bill.total.toFixed(2)
+                            : "0.00"}
+                </td>
+                <td>
+                    <button
+                        class="pdf-btn"
+                        onclick="viewPDF(${bill.id})">
+                        View
+                    </button>
+
+                    <button
+                        class="pdf-btn"
+                        onclick="downloadPDF(${bill.id})">
+                        Download
+                    </button>
+                    <button
+                        class="edit-btn"
+                        onclick="editBill(${bill.id})">
+                        Edit
+                    </button>
+
+                    <button
+                        class="delete-btn"
+                        onclick="deleteBill(${bill.id})">
+                        Delete
+                    </button>
+                </td>
+            `;
+                });
+
+            } catch (err) {
+                console.error(err);
+                loadingBox.innerHTML = `
+            <p style="
+                color:red;
+                font-weight:bold;
+            ">
+                Server connection failed
+            </p>
+        `;
             }
-
-            data.forEach(bill => {
-                const row = table.insertRow();
-
-                row.innerHTML = `
-                    <td>${bill.id}</td>
-                    <td>${bill.customer}</td>
-
-                    <!-- 🔥 ADDED: safe total -->
-                    <td>${bill.total ? bill.total.toFixed(2) : "0.00"}</td>
-
-                    <td>
-                        <button class="pdf-btn" onclick="viewPDF(${bill.id})">View</button>
-
-                        <!-- 🔥 ADDED: download button -->
-                        <button class="pdf-btn" onclick="downloadPDF(${bill.id})">Download</button>
-
-                        <button class="edit-btn" onclick="editBill(${bill.id})">Edit</button>
-                        <button class="delete-btn" onclick="deleteBill(${bill.id})">Delete</button>
-                    </td>
-                `;
-            });
         }
 
         async function viewPDF(id) {
