@@ -160,17 +160,61 @@
             margin-top: 20px;
             color: #888;
         }
+
+        /* Skeleton CSS */
+        #skeletonLoader {
+            margin-top: 20px;
+        }
+
+        .skeleton-row {
+            height: 70px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            position: relative;
+            overflow: hidden;
+            background:
+                linear-gradient(90deg,
+                    #e0e0e0 25%,
+                    #f5f5f5 50%,
+                    #e0e0e0 75%);
+            background-size: 400% 100%;
+            animation:
+                shimmer 1.2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position:
+                    100% 0;
+            }
+
+            100% {
+                background-position:
+                    -100% 0;
+            }
+        }
     </style>
 </head>
 
 <body>
 
     <h2>All Bills</h2>
-    <div id="loadingBox" class="loading-box">
+    <!-- <div id="loadingBox" class="loading-box">
 
         <div class="spinner"></div>
 
         <p>Loading bills...</p>
+
+    </div> -->
+
+    <!-- Skeleton Loading -->
+    <div id="skeletonLoader">
+
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
 
     </div>
 
@@ -208,15 +252,17 @@
         const BASE_URL = "https://billing-software-backend-04do.onrender.com";
 
         async function loadBills() {
-            const loadingBox =
-                document.getElementById("loadingBox");
+            // const loadingBox =
+            //     document.getElementById("loadingBox");
+            const skeletonLoader = document.getElementById("skeletonLoader");
             const table =
                 document.getElementById("table");
             const emptyMsg =
                 document.getElementById("emptyMsg");
 
             // 🔥 Start loading state
-            loadingBox.style.display = "block";
+            // loadingBox.style.display = "block";
+            const skeletonLoader = document.getElementById("skeletonLoader");
             table.style.display = "none";
             emptyMsg.innerText = "";
 
@@ -260,14 +306,16 @@
                 // 🔥 Empty database case
 
                 if (data.length === 0) {
-                    loadingBox.style.display = "none";
+                    // loadingBox.style.display = "none";
+                    skeletonLoader.style.display = "none";
                     emptyMsg.innerText =
                         "No bills found";
                     return;
                 }
 
                 // 🔥 Show table only after data arrives
-                loadingBox.style.display = "none";
+                // loadingBox.style.display = "none";
+                skeletonLoader.style.display = "none";
                 table.style.display = "table";
 
                 // 🔥 Insert rows
@@ -310,14 +358,23 @@
 
             } catch (err) {
                 console.error(err);
-                loadingBox.innerHTML = `
-            <p style="
-                color:red;
-                font-weight:bold;
-            ">
-                Server connection failed
-            </p>
-        `;
+                skeletonLoader.innerHTML = `
+                <p style="
+                    color:red;
+                    text-align:center;
+                    font-weight:bold;
+                ">
+                    Server connection failed
+                </p>
+            `;
+                //         loadingBox.innerHTML = `
+                //     <p style="
+                //         color:red;
+                //         font-weight:bold;
+                //     ">
+                //         Server connection failed
+                //     </p>
+                // `;
             }
         }
 
