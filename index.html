@@ -161,6 +161,77 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* Toast */
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            min-width: 260px;
+            max-width: 320px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.25);
+
+            animation:
+                slideIn 0.3s ease,
+                fadeOut 0.3s ease 3.7s forwards;
+            backdrop-filter: blur(10px);
+        }
+
+        .toast.success {
+
+            background:
+                linear-gradient(135deg,
+                    #4CAF50,
+                    #2E7D32);
+        }
+
+        .toast.error {
+            background:
+                linear-gradient(135deg,
+                    #f44336,
+                    #c62828);
+        }
+
+        .toast.info {
+            background:
+                linear-gradient(135deg,
+                    #2196F3,
+                    #1565C0);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform:
+                    translateX(100%);
+            }
+
+            to {
+                opacity: 1;
+                transform:
+                    translateX(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform:
+                    translateX(100%);
+            }
+        }
     </style>
 </head>
 
@@ -340,103 +411,6 @@
             setTimeout(() => calculateTotals(), 100);
         }
 
-        // async function submitBill() {
-        //     if (isSubmitting) return;
-        //     isSubmitting = true;
-
-        //     showLoading(
-        //         editBillId
-        //             ? "Updating Bill..."
-        //             : "Generating Bill..."
-        //     );
-
-        //     document.getElementById("error").innerText = "";
-
-        //     const customer = document.getElementById("customer").value.trim();
-        //     const customeradd1 = document.getElementById("customeradd1").value;
-        //     const customeradd2 = document.getElementById("customeradd2").value;
-        //     const date = document.getElementById("date").value;
-
-        //     if (!customer || !date) {
-        //         showError("Customer and date required");
-        //         return;
-        //     }
-
-        //     let items = [];
-
-        //     for (let row of document.querySelectorAll(".item-row")) {
-        //         const desc = row.querySelector(".desc").value.trim();
-        //         const qty = parseFloat(row.querySelector(".qty").value);
-        //         const price = parseFloat(row.querySelector(".price").value);
-        //         const unit = row.querySelector(".unit").value.trim();
-
-        //         if (!desc || isNaN(qty) || isNaN(price) || !unit) {
-        //             showError("Fill all item fields correctly");
-        //             return;
-        //         }
-
-        //         items.push({
-        //             description: desc,
-        //             note: row.querySelector(".note").value,
-        //             qty,
-        //             unit,
-        //             price
-        //         });
-        //     }
-
-        //     const url = editBillId
-        //         ? `${BASE_URL}/bills/${editBillId}`
-        //         : `${BASE_URL}/bills`;
-
-        //     const method = editBillId ? "PUT" : "POST";
-
-        //     const res = await fetch(url, {
-        //         method,
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //             "x-api-key": "mysecretkey123",
-        //             "Authorization": "Bearer " + localStorage.getItem("token")
-        //         },
-        //         body: JSON.stringify({ customer, customeradd1, customeradd2, date, items })
-        //     });
-
-        //     const data = await res.json();
-        //     const idToUse = editBillId || data.id;
-
-        //     const pdfRes = await fetch(`${BASE_URL}/bills/${idToUse}/pdf`, {
-        //         headers: {
-        //             "Authorization": "Bearer " + localStorage.getItem("token")
-        //         }
-        //     });
-
-        //     // 🔥 force correct response handling
-        //     const finalRes = await fetch(`${BASE_URL}/bills/${idToUse}/pdf`, {
-        //         headers: {
-        //             "Authorization": "Bearer " + localStorage.getItem("token")
-        //         }
-        //     });
-
-        //     const finalData = await finalRes.json();
-        //     console.log(finalData);
-
-
-        //     // 🔥 OPEN DIRECT PDF
-        //     window.open(finalData.pdf_url, "_blank");
-        //     // ✅ Success message
-        //     showSuccess("Bill generated successfully!");
-
-        //     // ✅ Show download button dynamically
-        //     const downloadDiv = document.getElementById("downloadBox");
-        //     downloadDiv.innerHTML = `
-        //         <a href="${finalData.pdf_url}" download>
-        //             <button style="background:#4CAF50;">Download PDF</button>
-        //         </a>
-        //     `;
-
-        //     editBillId = null;
-        //     localStorage.removeItem("editBillId");
-        //     isSubmitting = false;
-        // }
 
         async function submitBill() {
 
@@ -661,6 +635,48 @@
                 // 🔥 ALWAYS runs
 
                 hideLoading();
+                function showToast(message, type = "success") {
+
+                    const container =
+                        document.getElementById(
+                            "toastContainer"
+                        );
+
+                    const toast =
+                        document.createElement("div");
+
+                    toast.className =
+                        `toast ${type}`;
+
+                    // Icons
+
+                    let icon = "ℹ️";
+
+                    if (type === "success") {
+                        icon = "✅";
+                    }
+
+                    if (type === "error") {
+                        icon = "❌";
+                    }
+
+                    toast.innerHTML = `
+        <span>${icon}</span>
+        <span style="margin-left:8px;">
+            ${message}
+        </span>
+    `;
+
+                    container.appendChild(toast);
+
+                    // Remove after animation
+
+                    setTimeout(() => {
+
+                        toast.remove();
+
+                    }, 4000);
+                }
 
                 isSubmitting = false;
             }
@@ -769,6 +785,7 @@
 
     </div>
 
+    <div id="toastContainer"></div>
 </body>
 
 </html>
