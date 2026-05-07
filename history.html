@@ -132,6 +132,34 @@
                 transform: rotate(360deg);
             }
         }
+
+        .search-box {
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            outline: none;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.25);
+        }
+
+        #searchEmptyMsg {
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 20px;
+            color: #888;
+        }
     </style>
 </head>
 
@@ -143,6 +171,12 @@
         <div class="spinner"></div>
 
         <p>Loading bills...</p>
+
+    </div>
+
+    <div class="search-box">
+
+        <input type="text" id="searchInput" placeholder="Search customer..." onkeyup="filterBills()">
 
     </div>
 
@@ -160,6 +194,11 @@
     </table>
 
     <div id="emptyMsg" class="empty"></div>
+    <div id="searchEmptyMsg" class="empty" style="display:none;">
+
+        No matching bills found
+
+    </div>
 
     <script>
         if (!localStorage.getItem("token")) {
@@ -279,6 +318,69 @@
                 Server connection failed
             </p>
         `;
+            }
+        }
+
+        // filterbill
+        function filterBills() {
+
+            const input =
+                document.getElementById("searchInput");
+
+            const filter =
+                input.value.toLowerCase();
+
+            const table =
+                document.getElementById("table");
+
+            const rows =
+                table.getElementsByTagName("tr");
+
+            const searchEmptyMsg =
+                document.getElementById(
+                    "searchEmptyMsg"
+                );
+
+            let visibleCount = 0;
+
+            // Skip header row
+
+            for (let i = 1; i < rows.length; i++) {
+
+                const customerCell =
+                    rows[i].cells[1];
+
+                if (!customerCell) continue;
+
+                const customerText =
+                    customerCell.textContent
+                    || customerCell.innerText;
+
+                if (
+                    customerText
+                        .toLowerCase()
+                        .includes(filter)
+                ) {
+
+                    rows[i].style.display = "";
+
+                    visibleCount++;
+
+                } else {
+
+                    rows[i].style.display = "none";
+                }
+            }
+
+            // 🔥 No results handling
+
+            if (visibleCount === 0) {
+
+                searchEmptyMsg.style.display = "block";
+
+            } else {
+
+                searchEmptyMsg.style.display = "none";
             }
         }
 
