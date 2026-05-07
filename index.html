@@ -340,8 +340,108 @@
             setTimeout(() => calculateTotals(), 100);
         }
 
+        // async function submitBill() {
+        //     if (isSubmitting) return;
+        //     isSubmitting = true;
+
+        //     showLoading(
+        //         editBillId
+        //             ? "Updating Bill..."
+        //             : "Generating Bill..."
+        //     );
+
+        //     document.getElementById("error").innerText = "";
+
+        //     const customer = document.getElementById("customer").value.trim();
+        //     const customeradd1 = document.getElementById("customeradd1").value;
+        //     const customeradd2 = document.getElementById("customeradd2").value;
+        //     const date = document.getElementById("date").value;
+
+        //     if (!customer || !date) {
+        //         showError("Customer and date required");
+        //         return;
+        //     }
+
+        //     let items = [];
+
+        //     for (let row of document.querySelectorAll(".item-row")) {
+        //         const desc = row.querySelector(".desc").value.trim();
+        //         const qty = parseFloat(row.querySelector(".qty").value);
+        //         const price = parseFloat(row.querySelector(".price").value);
+        //         const unit = row.querySelector(".unit").value.trim();
+
+        //         if (!desc || isNaN(qty) || isNaN(price) || !unit) {
+        //             showError("Fill all item fields correctly");
+        //             return;
+        //         }
+
+        //         items.push({
+        //             description: desc,
+        //             note: row.querySelector(".note").value,
+        //             qty,
+        //             unit,
+        //             price
+        //         });
+        //     }
+
+        //     const url = editBillId
+        //         ? `${BASE_URL}/bills/${editBillId}`
+        //         : `${BASE_URL}/bills`;
+
+        //     const method = editBillId ? "PUT" : "POST";
+
+        //     const res = await fetch(url, {
+        //         method,
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //             "x-api-key": "mysecretkey123",
+        //             "Authorization": "Bearer " + localStorage.getItem("token")
+        //         },
+        //         body: JSON.stringify({ customer, customeradd1, customeradd2, date, items })
+        //     });
+
+        //     const data = await res.json();
+        //     const idToUse = editBillId || data.id;
+
+        //     const pdfRes = await fetch(`${BASE_URL}/bills/${idToUse}/pdf`, {
+        //         headers: {
+        //             "Authorization": "Bearer " + localStorage.getItem("token")
+        //         }
+        //     });
+
+        //     // 🔥 force correct response handling
+        //     const finalRes = await fetch(`${BASE_URL}/bills/${idToUse}/pdf`, {
+        //         headers: {
+        //             "Authorization": "Bearer " + localStorage.getItem("token")
+        //         }
+        //     });
+
+        //     const finalData = await finalRes.json();
+        //     console.log(finalData);
+
+
+        //     // 🔥 OPEN DIRECT PDF
+        //     window.open(finalData.pdf_url, "_blank");
+        //     // ✅ Success message
+        //     showSuccess("Bill generated successfully!");
+
+        //     // ✅ Show download button dynamically
+        //     const downloadDiv = document.getElementById("downloadBox");
+        //     downloadDiv.innerHTML = `
+        //         <a href="${finalData.pdf_url}" download>
+        //             <button style="background:#4CAF50;">Download PDF</button>
+        //         </a>
+        //     `;
+
+        //     editBillId = null;
+        //     localStorage.removeItem("editBillId");
+        //     isSubmitting = false;
+        // }
+
         async function submitBill() {
+
             if (isSubmitting) return;
+
             isSubmitting = true;
 
             showLoading(
@@ -350,92 +450,220 @@
                     : "Generating Bill..."
             );
 
-            document.getElementById("error").innerText = "";
+            try {
 
-            const customer = document.getElementById("customer").value.trim();
-            const customeradd1 = document.getElementById("customeradd1").value;
-            const customeradd2 = document.getElementById("customeradd2").value;
-            const date = document.getElementById("date").value;
+                document.getElementById("error").innerText = "";
 
-            if (!customer || !date) {
-                showError("Customer and date required");
-                return;
-            }
+                const customer =
+                    document.getElementById("customer")
+                        .value.trim();
 
-            let items = [];
+                const customeradd1 =
+                    document.getElementById("customeradd1")
+                        .value;
 
-            for (let row of document.querySelectorAll(".item-row")) {
-                const desc = row.querySelector(".desc").value.trim();
-                const qty = parseFloat(row.querySelector(".qty").value);
-                const price = parseFloat(row.querySelector(".price").value);
-                const unit = row.querySelector(".unit").value.trim();
+                const customeradd2 =
+                    document.getElementById("customeradd2")
+                        .value;
 
-                if (!desc || isNaN(qty) || isNaN(price) || !unit) {
-                    showError("Fill all item fields correctly");
+                const date =
+                    document.getElementById("date")
+                        .value;
+
+                // 🔥 Validation
+
+                if (!customer || !date) {
+
+                    showError(
+                        "Customer and date required"
+                    );
+
                     return;
                 }
 
-                items.push({
-                    description: desc,
-                    note: row.querySelector(".note").value,
-                    qty,
-                    unit,
-                    price
+                let items = [];
+
+                for (let row of document.querySelectorAll(".item-row")) {
+
+                    const desc =
+                        row.querySelector(".desc")
+                            .value.trim();
+
+                    const qty =
+                        parseFloat(
+                            row.querySelector(".qty").value
+                        );
+
+                    const price =
+                        parseFloat(
+                            row.querySelector(".price").value
+                        );
+
+                    const unit =
+                        row.querySelector(".unit")
+                            .value.trim();
+
+                    if (
+                        !desc ||
+                        isNaN(qty) ||
+                        isNaN(price) ||
+                        !unit
+                    ) {
+
+                        showError(
+                            "Fill all item fields correctly"
+                        );
+
+                        return;
+                    }
+
+                    items.push({
+                        description: desc,
+                        note: row.querySelector(".note").value,
+                        qty,
+                        unit,
+                        price
+                    });
+                }
+
+                // 🔥 API URL
+
+                const url = editBillId
+                    ? `${BASE_URL}/bills/${editBillId}`
+                    : `${BASE_URL}/bills`;
+
+                const method =
+                    editBillId ? "PUT" : "POST";
+
+                // 🔥 Save Bill
+
+                const res = await fetch(url, {
+
+                    method,
+
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-api-key": "mysecretkey123",
+                        "Authorization":
+                            "Bearer " +
+                            localStorage.getItem("token")
+                    },
+
+                    body: JSON.stringify({
+                        customer,
+                        customeradd1,
+                        customeradd2,
+                        date,
+                        items
+                    })
                 });
+
+                const data = await res.json();
+
+                console.log("BILL RESPONSE:", data);
+
+                if (!res.ok) {
+
+                    showError(
+                        data.detail ||
+                        "Bill save failed"
+                    );
+
+                    return;
+                }
+
+                const idToUse =
+                    editBillId || data.id;
+
+                // 🔥 Generate PDF
+
+                const finalRes = await fetch(
+                    `${BASE_URL}/bills/${idToUse}/pdf`,
+                    {
+                        headers: {
+                            "Authorization":
+                                "Bearer " +
+                                localStorage.getItem("token")
+                        }
+                    }
+                );
+
+                const finalData =
+                    await finalRes.json();
+
+                console.log(
+                    "PDF RESPONSE:",
+                    finalData
+                );
+
+                if (!finalRes.ok) {
+
+                    showError(
+                        finalData.detail ||
+                        "PDF generation failed"
+                    );
+
+                    return;
+                }
+
+                // 🔥 Open PDF
+
+                window.open(
+                    finalData.pdf_url,
+                    "_blank"
+                );
+
+                // 🔥 Success Message
+
+                showSuccess(
+                    editBillId
+                        ? "Bill updated successfully!"
+                        : "Bill generated successfully!"
+                );
+
+                // 🔥 Download Button
+
+                const downloadDiv =
+                    document.getElementById(
+                        "downloadBox"
+                    );
+
+                downloadDiv.innerHTML = `
+            <a href="${finalData.pdf_url}" download>
+                <button style="background:#4CAF50;">
+                    Download PDF
+                </button>
+            </a>
+        `;
+
+                // 🔥 Reset edit mode
+
+                editBillId = null;
+
+                localStorage.removeItem(
+                    "editBillId"
+                );
+
+                document.getElementById(
+                    "submitBtn"
+                ).innerText = "Generate Bill";
+
+            } catch (err) {
+
+                console.error(err);
+
+                showError(
+                    "Server connection failed"
+                );
+
+            } finally {
+
+                // 🔥 ALWAYS runs
+
+                hideLoading();
+
+                isSubmitting = false;
             }
-
-            const url = editBillId
-                ? `${BASE_URL}/bills/${editBillId}`
-                : `${BASE_URL}/bills`;
-
-            const method = editBillId ? "PUT" : "POST";
-
-            const res = await fetch(url, {
-                method,
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-api-key": "mysecretkey123",
-                    "Authorization": "Bearer " + localStorage.getItem("token")
-                },
-                body: JSON.stringify({ customer, customeradd1, customeradd2, date, items })
-            });
-
-            const data = await res.json();
-            const idToUse = editBillId || data.id;
-
-            const pdfRes = await fetch(`${BASE_URL}/bills/${idToUse}/pdf`, {
-                headers: {
-                    "Authorization": "Bearer " + localStorage.getItem("token")
-                }
-            });
-
-            // 🔥 force correct response handling
-            const finalRes = await fetch(`${BASE_URL}/bills/${idToUse}/pdf`, {
-                headers: {
-                    "Authorization": "Bearer " + localStorage.getItem("token")
-                }
-            });
-
-            const finalData = await finalRes.json();
-            console.log(finalData);
-
-
-            // 🔥 OPEN DIRECT PDF
-            window.open(finalData.pdf_url, "_blank");
-            // ✅ Success message
-            showSuccess("Bill generated successfully!");
-
-            // ✅ Show download button dynamically
-            const downloadDiv = document.getElementById("downloadBox");
-            downloadDiv.innerHTML = `
-                <a href="${finalData.pdf_url}" download>
-                    <button style="background:#4CAF50;">Download PDF</button>
-                </a>
-            `;
-
-            editBillId = null;
-            localStorage.removeItem("editBillId");
-            isSubmitting = false;
         }
 
         function showError(msg) {
