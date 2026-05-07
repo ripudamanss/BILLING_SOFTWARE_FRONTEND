@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Billing App</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 20px;
+            max-width: 950px;
+            margin: auto;
+            color: #fff;
+        }
+
+        /* 🔥 Glass container */
+        .glass {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        label {
+            font-weight: 500;
+        }
+
+        input,
+        select {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            background: rgba(255, 255, 255, 0.85);
+            color: #000;
+            transition: 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            background: white;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+        }
+
+        button {
+            padding: 8px 14px;
+            margin: 5px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 500;
+            backdrop-filter: blur(6px);
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .item-row {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .item-row button {
+            background: rgba(255, 0, 0, 0.6);
+        }
+
+        .item-row button:hover {
+            background: rgba(255, 0, 0, 0.8);
+        }
+
+        .unit-wrapper {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .row-total {
+            font-weight: bold;
+            min-width: 80px;
+            color: #fff;
+        }
+
+        h3 {
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        .top-actions {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .error {
+            color: #ffb3b3;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="glass">
+
+        <h2>Create Bill</h2>
+
+        <label>Customer Name:</label><br>
+        <input type="text" id="customer"><br>
+
+        <label>Address Line 1:</label><br>
+        <input type="text" id="customeradd1"><br>
+
+        <label>Address Line 2:</label><br>
+        <input type="text" id="customeradd2"><br>
+
+        <label>Date:</label><br>
+        <input type="date" id="date"><br>
+
+        <h3>Items</h3>
+        <div id="items"></div>
+
+        <div class="top-actions">
+            <button onclick="clearForm()">Clear</button>
+            <button onclick="addItem()">+ Add Item</button>
+            <button onclick="window.open('history.html')">View Bills</button>
+            <button id="submitBtn" onclick="submitBill()">Generate Bill</button> <!-- 🔥 Added ID for dynamic text change -->
+            <button onclick="logout()" style="
+                    position:absolute;
+                    top:20px;
+                    right:20px;
+                    padding:8px 14px;
+                    background:#ff4d4d;
+                    color:white;
+                    border:none;
+                    border-radius:6px;
+                    cursor:pointer;
+                    ">
+                Logout
+            </button>
+        </div>
+
+        <h3>Total: ₹ <span id="grandTotal">0.00</span></h3>
+        <div id="downloadBox" style="margin-top:10px;"></div>
+        <div id="error" class="error"></div>
+
+    </div>
+
+    <script>
+        if (!localStorage.getItem("token")) {
+            window.location.href = "login.html";
+        }
+        const BASE_URL = "https://billing-software-backend-04do.onrender.com"; //use /login for login endpoint
+        let editBillId = null;
+
+        function addItem(itemData = null) {
+            const div = document.createElement("div");
+            div.className = "item-row";
+
+            div.innerHTML = `
+        <input placeholder="Description" class="desc" value="${itemData?.description || ""}">
+        <input placeholder="Note" class="note" value="${itemData?.note || ""}">
+        <input type="number" step="any" placeholder="Qty" class="qty" value="${itemData?.qty || ""}">
+
+        <div class="unit-wrapper">
+            <select class="unit-select" onchange="handleUnitChange(this)">
+                <option value="">Unit</option>
+                <option value="Truck">Truck</option>
+                <option value="Sqft">Sqft</option>
+                <option value="Hr">Hr</option>
+                <option value="Kg">Kg</option>
+                <option value="Nos">Nos</option>
+                <option value="custom">Other...</option>
+            </select>
+
+            <input placeholder="Custom Unit" class="unit-input" style="display:none;">
+            <input type="hidden" class="unit" value="${itemData?.unit || ""}">
+        </div>
+
+        <input type="number" step="any" placeholder="Price" class="price" value="${itemData?.price || ""}">
+        <span class="row-total">₹ 0</span>
+
+        <button onclick="this.parentElement.remove(); calculateTotals();">❌</button>
+    `;
+
+            document.getElementById("items").appendChild(div);
+
+            div.querySelectorAll(".qty, .price").forEach(input => {
+                input.addEventListener("input", calculateTotals);
+            });
+
+            if (itemData?.unit) {
+                const wrapper = div.querySelector(".unit-wrapper");
+                const select = wrapper.querySelector(".unit-select");
+                const input = wrapper.querySelector(".unit-input");
+                const hidden = wrapper.querySelector(".unit");
+
+                const options = ["Truck", "Sqft", "Hr", "Kg", "Nos"];
+
+                if (options.includes(itemData.unit)) {
+                    select.value = itemData.unit;
+                    hidden.value = itemData.unit;
+                } else {
+                    select.value = "custom";
+                    input.style.display = "inline-block";
+                    input.value = itemData.unit;
+                    hidden.value = itemData.unit;
+                }
+            }
+
+            setTimeout(() => calculateTotals(), 0);
+        }
+
+        function handleUnitChange(select) {
+            const wrapper = select.parentElement;
+            const input = wrapper.querySelector(".unit-input");
+            const hidden = wrapper.querySelector(".unit");
+
+            if (select.value === "custom") {
+                input.style.display = "inline-block";
+                input.focus();
+                hidden.value = "";
+            } else {
+                input.style.display = "none";
+                hidden.value = select.value;
+            }
+
+            input.oninput = () => hidden.value = input.value;
+        }
+
+        function calculateTotals() {
+            let total = 0;
+
+            document.querySelectorAll(".item-row").forEach(row => {
+                const qty = parseFloat(row.querySelector(".qty").value) || 0;
+                const price = parseFloat(row.querySelector(".price").value) || 0;
+
+                const rowTotal = qty * price;
+                row.querySelector(".row-total").innerText = "₹ " + rowTotal.toFixed(2);
+
+                total += rowTotal;
+            });
+
+            document.getElementById("grandTotal").innerText = total.toFixed(2);
+        }
+
+        async function loadBill(id) {
+            const res = await fetch(`${BASE_URL}/bills/${id}`, {
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                }
+            });
+            const data = await res.json();
+            console.log("UPDATE RESPONSE:", data);
+                // New added console log to check response structure
+            if (!res.ok) {
+                showError(data.detail || "Update failed");
+                return;
+            }
+
+            editBillId = id;
+            console.log("Editing bill:", id);
+            // 🔥 Set button text to indicate update mode
+            document.getElementById("submitBtn").innerText = "Update Bill";
+            document.getElementById("customer").value = data.bill.customer;
+            document.getElementById("customeradd1").value = data.bill.customeradd1 || "";
+            document.getElementById("customeradd2").value = data.bill.customeradd2 || "";
+            document.getElementById("date").value = data.bill.date?.split("T")[0] || "";
+
+            document.getElementById("items").innerHTML = "";
+            data.items.forEach(item => addItem(item));
+
+            setTimeout(() => calculateTotals(), 100);
+        }
+
+        async function submitBill() {
+            document.getElementById("error").innerText = "";
+
+            const customer = document.getElementById("customer").value.trim();
+            const customeradd1 = document.getElementById("customeradd1").value;
+            const customeradd2 = document.getElementById("customeradd2").value;
+            const date = document.getElementById("date").value;
+
+            if (!customer || !date) {
+                showError("Customer and date required");
+                return;
+            }
+
+            let items = [];
+
+            for (let row of document.querySelectorAll(".item-row")) {
+                const desc = row.querySelector(".desc").value.trim();
+                const qty = parseFloat(row.querySelector(".qty").value);
+                const price = parseFloat(row.querySelector(".price").value);
+                const unit = row.querySelector(".unit").value.trim();
+
+                if (!desc || isNaN(qty) || isNaN(price) || !unit) {
+                    showError("Fill all item fields correctly");
+                    return;
+                }
+
+                items.push({
+                    description: desc,
+                    note: row.querySelector(".note").value,
+                    qty,
+                    unit,
+                    price
+                });
+            }
+
+            const url = editBillId
+                ? `${BASE_URL}/bills/${editBillId}`
+                : `${BASE_URL}/bills`;
+
+            const method = editBillId ? "PUT" : "POST";
+
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": "mysecretkey123",
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                },
+                body: JSON.stringify({ customer, customeradd1, customeradd2, date, items })
+            });
+
+            const data = await res.json();
+            const idToUse = editBillId || data.id;
+
+            const pdfRes = await fetch(`${BASE_URL}/bills/${idToUse}/pdf`, {
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                }
+            });
+
+            // 🔥 force correct response handling
+            const finalRes = await fetch(`${BASE_URL}/bills/${idToUse}/pdf`, {
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                }
+            });
+
+            const finalData = await finalRes.json();
+            console.log(finalData);
+            
+
+            // 🔥 OPEN DIRECT PDF
+            window.open(finalData.pdf_url, "_blank");
+            // ✅ Success message
+            showSuccess("Bill generated successfully!");
+
+            // ✅ Show download button dynamically
+            const downloadDiv = document.getElementById("downloadBox");
+            downloadDiv.innerHTML = `
+                <a href="${finalData.pdf_url}" download>
+                    <button style="background:#4CAF50;">Download PDF</button>
+                </a>
+            `;
+
+            editBillId = null;
+            localStorage.removeItem("editBillId");
+        }
+
+        function showError(msg) {
+            // document.getElementById("error").innerText = msg;
+            const el = document.getElementById("error");
+
+            el.style.color = "#ffb3b3";
+            el.style.fontWeight = "bold";
+            el.style.marginTop = "10px";
+
+            el.innerText = msg;
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById("error");
+            el.style.color = "#b6ffb6";
+            el.style.fontWeight = "bold";
+            el.style.marginTop = "10px";
+
+            el.innerText = msg;
+
+            setTimeout(() => {
+                el.innerText = "";
+            }, 3000);
+        }
+
+        window.onload = () => {
+
+            const id = localStorage.getItem("editBillId");
+            if (id) {
+                loadBill(id);
+            } else {
+                addItem();
+                }
+            };
+
+
+        function logout() {
+            localStorage.removeItem("token");
+            window.location.href = "login.html";
+        }
+
+        function clearForm() {
+
+            document.getElementById("customer").value = "";
+            document.getElementById("customeradd1").value = "";
+            document.getElementById("customeradd2").value = "";
+            document.getElementById("date").value = "";
+
+            document.getElementById("items").innerHTML = "";
+
+            addItem();
+
+            calculateTotals();
+
+            document.getElementById("downloadBox").innerHTML = "";
+
+            document.getElementById("error").innerText = "";
+
+            // 🔥 Clear edit mode
+            editBillId = null;
+
+            localStorage.removeItem("editBillId");
+
+            // 🔥 Reset button text
+            document.getElementById("submitBtn").innerText = "Generate Bill";
+
+        }
+
+    </script>
+
+</body>
+
+</html>

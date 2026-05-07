@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Bill History</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial;
+            background: #f5f7fb;
+            padding: 20px;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        h2 {
+            text-align: center;
+            background: white;
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        th {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        button {
+            padding: 6px 10px;
+            margin: 2px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .pdf-btn {
+            background: #2196F3;
+            color: white;
+        }
+
+        .pdf-btn:hover {
+            background: #1976D2;
+        }
+
+        .edit-btn {
+            background: #FFC107;
+        }
+
+        .edit-btn:hover {
+            background: #e0a800;
+        }
+
+        .delete-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #d32f2f;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .top-bar button {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .top-bar button:hover {
+            background: #45a049;
+        }
+
+        .empty {
+            text-align: center;
+            margin-top: 20px;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>All Bills</h2>
+
+    <div class="top-bar">
+        <button onclick="window.location.href='index.html'">+ Create New Bill</button>
+    </div>
+
+    <table id="table">
+        <tr>
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Total (₹)</th>
+            <th>Actions</th>
+        </tr>
+    </table>
+
+    <div id="emptyMsg" class="empty"></div>
+
+    <script>
+        if (!localStorage.getItem("token")) {
+            window.location.href = "login.html";
+        }
+        // const BASE_URL = "http://127.0.0.1:8001";
+        const BASE_URL = "https://billing-software-backend-04do.onrender.com";
+        
+
+        async function loadBills() {
+            const res = await fetch(`${BASE_URL}/bills`, {
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                }
+            });
+
+            const data = await res.json();
+
+            const table = document.getElementById("table");
+            const emptyMsg = document.getElementById("emptyMsg");
+
+            // 🔥 ADDED: reset table to avoid duplicates
+            table.innerHTML = `
+                <tr>
+                    <th>ID</th>
+                    <th>Customer</th>
+                    <th>Total (₹)</th>
+                    <th>Actions</th>
+                </tr>
+            `;
+
+            if (data.length === 0) {
+                emptyMsg.innerText = "No bills found";
+                return;
+            }
+
+            data.forEach(bill => {
+                const row = table.insertRow();
+
+                row.innerHTML = `
+                    <td>${bill.id}</td>
+                    <td>${bill.customer}</td>
+
+                    <!-- 🔥 ADDED: safe total -->
+                    <td>${bill.total ? bill.total.toFixed(2) : "0.00"}</td>
+
+                    <td>
+                        <button class="pdf-btn" onclick="viewPDF(${bill.id})">View</button>
+
+                        <!-- 🔥 ADDED: download button -->
+                        <button class="pdf-btn" onclick="downloadPDF(${bill.id})">Download</button>
+
+                        <button class="edit-btn" onclick="editBill(${bill.id})">Edit</button>
+                        <button class="delete-btn" onclick="deleteBill(${bill.id})">Delete</button>
+                    </td>
+                `;
+            });
+        }
+
+        async function viewPDF(id) {
+            const res = await fetch(`${BASE_URL}/bills/${id}/pdf`, {
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                }
+            });
+
+            const data = await res.json();
+
+            window.open(data.pdf_url, "_blank");
+        }
+
+        // 🔥 ADDED: download function
+        async function downloadPDF(id) {
+            const res = await fetch(`${BASE_URL}/bills/${id}/pdf`, {
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                }
+            });
+
+            const data = await res.json();
+
+            const link = document.createElement("a");
+            link.href = data.pdf_url;
+            link.download = `bill_${id}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }
+
+        function editBill(id) {
+            localStorage.setItem("editBillId", id);
+            window.location.href = "./index.html";
+        }
+
+
+        async function deleteBill(id) {
+            if (!confirm("Delete this bill?")) return;
+
+            await fetch(`${BASE_URL}/bills/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                }
+            });
+
+            // 🔥 ADDED: smooth reload
+            loadBills();
+        }
+
+        loadBills();
+    </script>
+
+</body>
+
+</html>
