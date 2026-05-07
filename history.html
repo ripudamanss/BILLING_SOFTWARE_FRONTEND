@@ -165,21 +165,23 @@
         #skeletonLoader {
             margin-top: 20px;
         }
-
         .skeleton-row {
-            height: 70px;
-            border-radius: 12px;
-            margin-bottom: 14px;
+            height: 78px;
+            border-radius: 14px;
+            margin-bottom: 16px;
             position: relative;
             overflow: hidden;
             background:
                 linear-gradient(90deg,
-                    #e0e0e0 25%,
-                    #f5f5f5 50%,
-                    #e0e0e0 75%);
+                    #cfcfcf 25%,
+                    #e8e8e8 50%,
+                    #cfcfcf 75%);
+
             background-size: 400% 100%;
             animation:
                 shimmer 1.2s infinite;
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.08);
         }
 
         @keyframes shimmer {
@@ -187,7 +189,6 @@
                 background-position:
                     100% 0;
             }
-
             100% {
                 background-position:
                     -100% 0;
@@ -199,14 +200,6 @@
 <body>
 
     <h2>All Bills</h2>
-    <!-- <div id="loadingBox" class="loading-box">
-
-        <div class="spinner"></div>
-
-        <p>Loading bills...</p>
-
-    </div> -->
-
     <!-- Skeleton Loading -->
     <div id="skeletonLoader">
 
@@ -252,8 +245,6 @@
         const BASE_URL = "https://billing-software-backend-04do.onrender.com";
 
         async function loadBills() {
-            // const loadingBox =
-            //     document.getElementById("loadingBox");
             const skeletonLoader = document.getElementById("skeletonLoader");
             const table =
                 document.getElementById("table");
@@ -261,8 +252,6 @@
                 document.getElementById("emptyMsg");
 
             // 🔥 Start loading state
-            // loadingBox.style.display = "block";
-            // const skeletonLoader = document.getElementById("skeletonLoader");
             table.style.display = "none";
             emptyMsg.innerText = "";
 
@@ -367,14 +356,6 @@
                     Server connection failed
                 </p>
             `;
-                //         loadingBox.innerHTML = `
-                //     <p style="
-                //         color:red;
-                //         font-weight:bold;
-                //     ">
-                //         Server connection failed
-                //     </p>
-                // `;
             }
         }
 
