@@ -242,7 +242,8 @@
         <h2>Create Bill</h2>
 
         <label>Customer Name:</label><br>
-        <input type="text" id="customer"><br>
+        <input type="text" id="customer" list="customerSuggestions" placeholder="Customer Name"><datalist
+            id="customerSuggestions"></datalist><br>
 
         <label>Address Line 1:</label><br>
         <input type="text" id="customeradd1"><br>
@@ -285,6 +286,42 @@
     </div>
 
     <script>
+        let customersData = [];
+        async function loadCustomers() {
+            const res = await fetch(
+                `${BASE_URL}/customers`
+            );
+            customersData = await res.json();
+            const datalist =
+                document.getElementById(
+                    "customerSuggestions"
+                );
+            datalist.innerHTML = "";
+            customersData.forEach(customer => {
+                datalist.innerHTML += `
+            <option value="${customer.customer_name}">
+        `;
+            });
+        }
+
+        // Auto Fill address
+        document.getElementById("customer")
+            .addEventListener("change", function () {
+                const selectedCustomer =
+                    customersData.find(
+                        customer =>
+                            customer.customer_name === this.value
+                    );
+                if (selectedCustomer) {
+                    document.getElementById(
+                        "customeradd1"
+                    ).value = selectedCustomer.address1 || "";
+                    document.getElementById(
+                        "customeradd2"
+                    ).value = selectedCustomer.address2 || "";
+                }
+            });
+
         if (!localStorage.getItem("token")) {
             window.location.href = "login.html";
         }
@@ -708,6 +745,7 @@
         }
 
         window.onload = () => {
+            loadCustomers();
 
             const id = localStorage.getItem("editBillId");
             if (id) {
