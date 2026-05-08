@@ -14,6 +14,7 @@
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: 'Poppins', sans-serif;
             min-height: 100vh;
@@ -29,11 +30,13 @@
 
         /* DARK OVERLAY */
         body::before {
+
             html,
             body {
                 width: 100%;
                 min-height: 100%;
             }
+
             content: '';
             position: absolute;
             width: 100%;
@@ -199,6 +202,7 @@
             0% {
                 transform: rotate(0deg);
             }
+
             100% {
                 transform: rotate(360deg);
             }
@@ -209,6 +213,7 @@
             body {
                 padding: 16px;
             }
+
             .login-container {
                 padding: 34px 22px;
                 border-radius: 20px;
@@ -235,6 +240,7 @@
     </style>
 
 </head>
+
 <body>
 
     <div class="login-container">
@@ -284,6 +290,11 @@
             "https://billing-software-backend-04do.onrender.com";
 
         async function login() {
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Enter") {
+                    login();
+                }
+            });
             const username =
                 document.getElementById(
                     "username"
