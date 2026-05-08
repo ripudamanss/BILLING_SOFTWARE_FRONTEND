@@ -304,24 +304,6 @@
             });
         }
 
-        // Auto Fill address
-        document.getElementById("customer")
-            .addEventListener("change", function () {
-                const selectedCustomer =
-                    customersData.find(
-                        customer =>
-                            customer.customer_name === this.value
-                    );
-                if (selectedCustomer) {
-                    document.getElementById(
-                        "customeradd1"
-                    ).value = selectedCustomer.address1 || "";
-                    document.getElementById(
-                        "customeradd2"
-                    ).value = selectedCustomer.address2 || "";
-                }
-            });
-
         if (!localStorage.getItem("token")) {
             window.location.href = "login.html";
         }
@@ -746,6 +728,23 @@
 
         window.onload = () => {
             loadCustomers();
+            // Auto Fill address
+            document.getElementById("customer")
+                .addEventListener("change", function () {
+                    const selectedCustomer =
+                        customersData.find(
+                            customer =>
+                                customer.customer_name === this.value
+                        );
+                    if (selectedCustomer) {
+                        document.getElementById(
+                            "customeradd1"
+                        ).value = selectedCustomer.address1 || "";
+                        document.getElementById(
+                            "customeradd2"
+                        ).value = selectedCustomer.address2 || "";
+                    }
+                });
 
             const id = localStorage.getItem("editBillId");
             if (id) {
