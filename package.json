@@ -1,0 +1,19 @@
+{
+  "name": "billing-software-frontend",
+  "version": "1.0.0",
+  "description": "Billing Management System Frontend",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'No build step needed for static HTML'",
+    "lint": "echo 'No linter configured'"
+  },
+  "keywords": [
+    "billing",
+    "frontend"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vercel/speed-insights": "^2.0.0"
+  }
+}
