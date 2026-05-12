@@ -356,6 +356,7 @@
 
         <h3>Items</h3>
         <div id="items"></div>
+        <datalist id="itemSuggestions"></datalist>
 
         <div class="top-actions">
             <button onclick="window.location.href='dashboard.html'">&#8592 Dashboard</button>
@@ -400,7 +401,53 @@
         const BASE_URL = "https://billing-software-backend-04do.onrender.com"; //use /login for login endpoint
         // const BASE_URL = "https://supreme-space-spoon-qx9wr7g66ppfxvg7-10000.app.github.dev"; //use /login for login endpoint
         let editBillId = null;
+        let itemsData = [];
         let isSubmitting = false;
+
+        async function loadItems() {
+            try {
+
+                const res = await fetch(
+                    `${BASE_URL}/items`,
+                    {
+                        headers: {
+                            "Authorization":
+                                "Bearer " +
+                                localStorage.getItem("token")
+                        }
+                    }
+                );
+
+                itemsData = await res.json();
+
+                const datalist =
+                    document.getElementById(
+                        "itemSuggestions"
+                    );
+
+                datalist.innerHTML = "";
+
+                itemsData.forEach(item => {
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+                    option.value =
+                        item.description;
+
+                    datalist.appendChild(option);
+                });
+
+            } catch (err) {
+
+                console.error(
+                    "Items load error:",
+                    err
+                );
+            }
+        }
 
         // Feature added 12 may 26
         // 🔥 SESSION CHECK
@@ -487,7 +534,7 @@
             div.className = "item-row";
 
             div.innerHTML = `
-        <input placeholder="Description" class="desc" value="${itemData?.description || ""}">
+        <input placeholder="Description" class="desc" list="itemSuggestions" autocomplete="off" value="${itemData?.description || ""}">
         <input placeholder="Note" class="note" value="${itemData?.note || ""}">
         <input type="number" step="any" placeholder="Qty" class="qty" value="${itemData?.qty || ""}">
 
@@ -513,6 +560,86 @@
     `;
 
             document.getElementById("items").appendChild(div);
+            const descInput =
+                div.querySelector(".desc");
+
+            const priceInput =
+                div.querySelector(".price");
+
+            const hiddenUnit =
+                div.querySelector(".unit");
+
+            const unitSelect =
+                div.querySelector(".unit-select");
+
+            const customUnit =
+                div.querySelector(".unit-input");
+
+            descInput.addEventListener(
+                "change",
+                () => {
+
+                    const matchedItem =
+                        itemsData.find(
+                            item =>
+                                item.description
+                                    .toLowerCase()
+                                    .trim()
+                                ===
+                                descInput.value
+                                    .toLowerCase()
+                                    .trim()
+                        );
+
+                    if (!matchedItem) return;
+
+                    // AUTO PRICE
+                    priceInput.value =
+                        matchedItem.price;
+
+                    // AUTO UNIT
+                    const standardUnits = [
+                        "Truck",
+                        "Sqft",
+                        "Hr",
+                        "Kg",
+                        "Nos",
+                        "Hour"
+                    ];
+
+                    if (
+                        standardUnits.includes(
+                            matchedItem.unit
+                        )
+                    ) {
+
+                        unitSelect.value =
+                            matchedItem.unit;
+
+                        hiddenUnit.value =
+                            matchedItem.unit;
+
+                        customUnit.style.display =
+                            "none";
+
+                    } else {
+
+                        unitSelect.value =
+                            "custom";
+
+                        customUnit.style.display =
+                            "inline-block";
+
+                        customUnit.value =
+                            matchedItem.unit;
+
+                        hiddenUnit.value =
+                            matchedItem.unit;
+                    }
+
+                    calculateTotals();
+                }
+            );
 
             div.querySelectorAll(".qty, .price").forEach(input => {
                 input.addEventListener("input", calculateTotals);
@@ -897,7 +1024,7 @@
             }, 3000);
         }
 
-        window.onload = () => {
+        window.onload = async () => {
 
             loadCustomers();
 
@@ -922,6 +1049,7 @@
                     }
                 });
 
+            await loadItems();
             const id =
                 localStorage.getItem("editBillId");
             if (id) {

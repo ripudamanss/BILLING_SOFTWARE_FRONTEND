@@ -1,0 +1,386 @@
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Admin Portal</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .box {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        input, select {
+            padding: 8px;
+            margin: 5px;
+        }
+
+        button {
+            padding: 8px 14px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        th {
+            background: #333;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Admin Portal</h1>
+
+<div class="box">
+
+    <h2>Create User</h2>
+
+    <input id="username" placeholder="Username">
+
+    <input id="password" placeholder="Password">
+
+    <select id="role">
+        <option value="staff">Staff</option>
+        <option value="admin">Admin</option>
+    </select>
+
+    <button onclick="createUser()">
+        Create User
+    </button>
+
+</div>
+
+<div class="box">
+
+    <h2>Users</h2>
+
+    <table id="usersTable">
+
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+
+    </table>
+
+</div>
+
+<div class="box">
+
+    <h2>Create Item</h2>
+
+    <input id="itemDescription" placeholder="Description">
+
+    <input id="itemUnit" placeholder="Unit">
+
+    <input id="itemPrice" placeholder="Price">
+
+    <button onclick="createItem()">
+        Create Item
+    </button>
+
+</div>
+
+<div class="box">
+
+    <h2>Items</h2>
+
+    <table id="itemsTable">
+
+        <tr>
+            <th>ID</th>
+            <th>Description</th>
+            <th>Unit</th>
+            <th>Price</th>
+            <th>Actions</th>
+        </tr>
+
+    </table>
+
+</div>
+
+<script>
+
+const BASE_URL = "https://billing-software-backend-04do.onrender.com";
+
+async function authFetch(
+    url,
+    options = {}
+) {
+
+    const token =
+        localStorage.getItem("token");
+
+    options.headers = {
+        ...(options.headers || {}),
+        "Authorization":
+            "Bearer " + token,
+        "Content-Type":
+            "application/json"
+    };
+
+    const res =
+        await fetch(url, options);
+
+    if (res.status === 401) {
+
+        alert("Session expired");
+
+        localStorage.clear();
+
+        window.location.href =
+            "login.html";
+    }
+
+    return res;
+}
+
+async function loadUsers() {
+
+    const res =
+        await authFetch(
+            `${BASE_URL}/users`
+        );
+
+    const users =
+        await res.json();
+
+    const table =
+        document.getElementById(
+            "usersTable"
+        );
+
+    table.innerHTML = `
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    `;
+
+    users.forEach(user => {
+
+        table.innerHTML += `
+            <tr>
+                <td>${user.id}</td>
+                <td>${user.username}</td>
+                <td>${user.role}</td>
+                <td>
+                    ${user.is_active ? "Active" : "Disabled"}
+                </td>
+                <td>
+                    <button onclick="toggleUser(${user.id})">
+                        Toggle
+                    </button>
+
+                    <button onclick="deleteUser(${user.id})">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+async function createUser() {
+
+    const username =
+        document.getElementById(
+            "username"
+        ).value;
+
+    const password =
+        document.getElementById(
+            "password"
+        ).value;
+
+    const role =
+        document.getElementById(
+            "role"
+        ).value;
+
+    await authFetch(
+        `${BASE_URL}/users`,
+        {
+            method: "POST",
+
+            body: JSON.stringify({
+                username,
+                password,
+                role
+            })
+        }
+    );
+
+    loadUsers();
+}
+
+async function toggleUser(id) {
+
+    await authFetch(
+        `${BASE_URL}/users/${id}/toggle`,
+        {
+            method: "PUT"
+        }
+    );
+
+    loadUsers();
+}
+
+async function deleteUser(id) {
+
+    await authFetch(
+        `${BASE_URL}/users/${id}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+    loadUsers();
+}
+
+async function loadItems() {
+
+    const res =
+        await authFetch(
+            `${BASE_URL}/admin/items`
+        );
+
+    const items =
+        await res.json();
+
+    const table =
+        document.getElementById(
+            "itemsTable"
+        );
+
+    table.innerHTML = `
+        <tr>
+            <th>ID</th>
+            <th>Description</th>
+            <th>Unit</th>
+            <th>Price</th>
+            <th>Actions</th>
+        </tr>
+    `;
+
+    items.forEach(item => {
+
+        table.innerHTML += `
+            <tr>
+                <td>${item.id}</td>
+                <td>${item.description}</td>
+                <td>${item.unit}</td>
+                <td>${item.price}</td>
+                <td>
+                    <button onclick="deleteItem(${item.id})">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+async function createItem() {
+
+    const description =
+        document.getElementById(
+            "itemDescription"
+        ).value;
+
+    const unit =
+        document.getElementById(
+            "itemUnit"
+        ).value;
+
+    const price =
+        parseFloat(
+            document.getElementById(
+                "itemPrice"
+            ).value
+        );
+
+    await authFetch(
+        `${BASE_URL}/admin/items`,
+        {
+            method: "POST",
+
+            body: JSON.stringify({
+                description,
+                unit,
+                price
+            })
+        }
+    );
+
+    loadItems();
+}
+
+async function deleteItem(id) {
+
+    await authFetch(
+        `${BASE_URL}/admin/items/${id}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+    loadItems();
+}
+
+window.onload = () => {
+
+    const role =
+        localStorage.getItem("role");
+
+    if(role !== "admin") {
+
+        alert("Admin access required");
+
+        window.location.href =
+            "index.html";
+
+        return;
+    }
+
+    loadUsers();
+
+    loadItems();
+}
+
+</script>
+
+</body>
+</html>
+```
