@@ -334,13 +334,30 @@
                 );
 
                 const data = await res.json();
+                // Feature added 12 may 26
+                // if (data.access_token) {
+                //     localStorage.setItem(
+                //         "token",
+                //         data.access_token
+                //     );
+                //     window.location.href =
+                //         "dashboard.html";
                 if (data.access_token) {
+
                     localStorage.setItem(
                         "token",
                         data.access_token
                     );
-                    window.location.href =
-                        "dashboard.html";
+
+                    // 🔥 ADDED SESSION EXPIRY
+                    localStorage.setItem(
+                        "token_expiry",
+                        Date.now() + (data.expires_in * 1000)
+                    );
+
+                    window.location.href = "dashboard.html";
+                
+
                 } else {
                     error.innerText =
                         "Invalid username or password";

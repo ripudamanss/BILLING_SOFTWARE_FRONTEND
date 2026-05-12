@@ -245,11 +245,91 @@
     </div>
 
     <script>
-        if (!localStorage.getItem("token")) {
-            window.location.href = "login.html";
-        }
-        // const BASE_URL = "http://127.0.0.1:8001";
+        // if (!localStorage.getItem("token")) {
+        //     window.location.href = "login.html";
+        // } added 12 may 2026 - 
+        checkSession();
+
         const BASE_URL = "https://billing-software-backend-04do.onrender.com";
+        
+        // Added 12 may 2026
+        // 🔥 SESSION CHECK
+        function checkSession() {
+
+            const token =
+                localStorage.getItem("token");
+
+            const expiry =
+                localStorage.getItem("token_expiry");
+
+            // No token
+            if (!token || !expiry) {
+
+                logoutUser();
+                return;
+            }
+
+            // Expired
+            if (Date.now() > parseInt(expiry)) {
+
+                alert(
+                    "Session expired. Please login again."
+                );
+
+                logoutUser();
+            }
+        }
+
+        // 🔥 CENTRAL LOGOUT
+        function logoutUser() {
+
+            localStorage.removeItem("token");
+
+            localStorage.removeItem(
+                "token_expiry"
+            );
+
+            localStorage.removeItem(
+                "editBillId"
+            );
+
+            window.location.href =
+                "login.html";
+        }
+
+        // Feature added 12 may 26
+        // 🔥 AUTH FETCH WRAPPER
+        async function authFetch(
+            url,
+            options = {}
+        ) {
+
+            const token =
+                localStorage.getItem("token");
+
+            options.headers = {
+                ...(options.headers || {}),
+                "Authorization":
+                    "Bearer " + token
+            };
+
+            const res =
+                await fetch(url, options);
+
+            // 🔥 SESSION EXPIRED
+            if (res.status === 401) {
+
+                alert(
+                    "Session expired. Login again."
+                );
+
+                logoutUser();
+
+                throw new Error("Unauthorized");
+            }
+
+            return res;
+        }
 
         async function loadBills() {
             const skeletonLoader = document.getElementById("skeletonLoader");
@@ -263,7 +343,7 @@
             emptyMsg.innerText = "";
 
             try {
-                const res = await fetch(
+                const res = await authFetch( // 12 may 26 added authFetch instead of fetch
                     `${BASE_URL}/bills`,
                     {
                         headers: {
@@ -430,7 +510,7 @@
         }
 
         async function viewPDF(id) {
-            const res = await fetch(`${BASE_URL}/bills/${id}/pdf`, {
+            const res = await authFetch(`${BASE_URL}/bills/${id}/pdf`, { // 12 may 26 added authFetch instead of fetch
                 headers: {
                     "Authorization": "Bearer " + localStorage.getItem("token")
                 }
@@ -443,7 +523,7 @@
 
         // 🔥 ADDED: download function
         async function downloadPDF(id) {
-            const res = await fetch(`${BASE_URL}/bills/${id}/pdf`, {
+            const res = await authFetch(`${BASE_URL}/bills/${id}/pdf`, { // 12 may 26 added authFetch instead of fetch
                 headers: {
                     "Authorization": "Bearer " + localStorage.getItem("token")
                 }
@@ -468,7 +548,7 @@
         async function deleteBill(id) {
             if (!confirm("Delete this bill?")) return;
 
-            await fetch(`${BASE_URL}/bills/${id}`, {
+            await authFetch(`${BASE_URL}/bills/${id}`, { // 12 may 26 added authFetch instead of fetch
                 method: "DELETE",
                 headers: {
                     "Authorization": "Bearer " + localStorage.getItem("token")

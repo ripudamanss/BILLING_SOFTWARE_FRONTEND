@@ -3,8 +3,7 @@
 
 <head>
 
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Billing Dashboard</title>
 
@@ -406,8 +405,7 @@
 
         </div>
 
-        <div id="dashboardContent"
-            style="display:none;">
+        <div id="dashboardContent" style="display:none;">
 
             <!-- KPI CARDS -->
 
@@ -524,15 +522,90 @@
     </div>
 
     <script>
+        // Added 12 may 2026 
+        checkSession();
 
-        if (!localStorage.getItem("token")) {
+        const BASE_URL =
+            "https://billing-software-backend-04do.onrender.com";
+
+        // 🔥 SESSION CHECK
+        function checkSession() {
+
+            const token =
+                localStorage.getItem("token");
+
+            const expiry =
+                localStorage.getItem("token_expiry");
+
+            // No token
+            if (!token || !expiry) {
+
+                logoutUser();
+                return;
+            }
+
+            // Expired
+            if (Date.now() > parseInt(expiry)) {
+
+                alert(
+                    "Session expired. Please login again."
+                );
+
+                logoutUser();
+            }
+        }
+
+        // 🔥 CENTRAL LOGOUT
+        function logoutUser() {
+
+            localStorage.removeItem("token");
+
+            localStorage.removeItem(
+                "token_expiry"
+            );
+
+            localStorage.removeItem(
+                "editBillId"
+            );
 
             window.location.href =
                 "login.html";
         }
 
-        const BASE_URL =
-            "https://billing-software-backend-04do.onrender.com";
+        // Feature added 12 may 26
+        // 🔥 AUTH FETCH WRAPPER
+        async function authFetch(
+            url,
+            options = {}
+        ) {
+
+            const token =
+                localStorage.getItem("token");
+
+            options.headers = {
+                ...(options.headers || {}),
+                "Authorization":
+                    "Bearer " + token
+            };
+
+            const res =
+                await fetch(url, options);
+
+            // 🔥 SESSION EXPIRED
+            if (res.status === 401) {
+
+                alert(
+                    "Session expired. Login again."
+                );
+
+                logoutUser();
+
+                throw new Error("Unauthorized");
+            }
+
+            return res;
+        }
+
 
         let chartInstance = null;
 
@@ -548,7 +621,7 @@
 
             try {
 
-                const res = await fetch(
+                const res = await authFetch( // added authFetch instead of fetch - 12 may 2026
                     `${BASE_URL}/bills`,
                     {
                         headers: {
@@ -748,7 +821,7 @@
 
         async function viewBill(id) {
 
-            const res = await fetch(
+            const res = await authFetch( // added authFetch instead of fetch - 12 may 2026
                 `${BASE_URL}/bills/${id}/pdf`,
                 {
                     headers: {
@@ -785,7 +858,7 @@
                 "Delete this bill?"
             )) return;
 
-            await fetch(
+            await authFetch( // added authFetch instead of fetch - 12 may 2026
                 `${BASE_URL}/bills/${id}`,
                 {
                     method: "DELETE",
@@ -838,14 +911,19 @@
             a.click();
         }
 
+        // function logout() {
+
+        //     localStorage.removeItem(
+        //         "token"
+        //     );
+
+        //     window.location.href =
+        //         "login.html";
+        // }
+
+        // Added 12 may 2026
         function logout() {
-
-            localStorage.removeItem(
-                "token"
-            );
-
-            window.location.href =
-                "login.html";
+            logoutUser();
         }
 
         loadDashboard();
