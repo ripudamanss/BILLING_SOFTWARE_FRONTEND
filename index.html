@@ -361,7 +361,7 @@
             <button onclick="window.location.href='dashboard.html'">&#8592 Dashboard</button>
             <button onclick="clearForm()">Clear</button>
             <button onclick="addItem()">+ Add Item</button>
-            <button onclick="window.open('history.html')">View Bills</button>
+            <button onclick="window.location.href='history.html'">View Bills</button>
             <button id="submitBtn" onclick="submitBill()">Generate Bill</button>
             <!-- 🔥 Added ID for dynamic text change -->
             <button onclick="logout()" class="logout-btn">
@@ -398,6 +398,7 @@
         checkSession();
 
         const BASE_URL = "https://billing-software-backend-04do.onrender.com"; //use /login for login endpoint
+        // const BASE_URL = "https://supreme-space-spoon-qx9wr7g66ppfxvg7-10000.app.github.dev"; //use /login for login endpoint
         let editBillId = null;
         let isSubmitting = false;
 
@@ -433,6 +434,7 @@
         function logoutUser() {
 
             localStorage.removeItem("token");
+            localStorage.removeItem("role");
 
             localStorage.removeItem(
                 "token_expiry"
