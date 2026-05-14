@@ -467,7 +467,8 @@
                 font-size: 14px;
             }
 
-            th, td {
+            th,
+            td {
                 padding: 10px;
             }
         }
@@ -524,7 +525,11 @@
                 Dashboard
             </button>
 
-<button onclick="navigateToCreateBill()">
+            <button id="adminBtn" onclick="window.location.href='admin.html'" style="display:none;">
+                Admin Panel
+            </button>
+
+            <button onclick="navigateToCreateBill()">
                 Create Bill
             </button>
 
@@ -1068,6 +1073,12 @@
         }
 
         loadDashboard();
+
+        const role = localStorage.getItem("role");
+
+        if (role === "admin") {
+            document.getElementById("adminBtn").style.display = "block";
+        }
 
     </script>
 

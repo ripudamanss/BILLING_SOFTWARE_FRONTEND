@@ -276,6 +276,7 @@
         }
 
         @media (max-width: 720px) {
+
             .page-header,
             .box {
                 padding: 22px;
@@ -291,6 +292,17 @@
                 padding: 22px 0 30px;
             }
         }
+
+        @keyframes spin {
+
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
@@ -299,7 +311,7 @@
         <div class="page-header">
             <h1>Admin Portal</h1>
             <p>Manage company settings, users and items from one centralized dashboard with a polished experience.</p>
-            <button class="btn secondary" onclick="window.location.href='index.html'">Go to Dashboard</button>
+            <button class="btn secondary" onclick="window.location.href='dashboard.html'">Go to Dashboard</button>
         </div>
 
         <div class="box">
@@ -379,143 +391,174 @@
             </div>
         </div>
 
-    <div class="box">
-        <h2>Create User</h2>
+        <div class="box">
+            <h2>Create User</h2>
 
-        <div class="form-grid">
-            <div class="form-field">
-                <label><span>Username</span>
-                    <input id="username" placeholder="Username">
-                </label>
+            <div class="form-grid">
+                <div class="form-field">
+                    <label><span>Username</span>
+                        <input id="username" placeholder="Username">
+                    </label>
+                </div>
+                <div class="form-field">
+                    <label><span>Password</span>
+                        <input type="password" id="password" placeholder="Password">
+                    </label>
+                </div>
+                <div class="form-field">
+                    <label><span>Role</span>
+                        <select id="role">
+                            <option value="staff">Staff</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </label>
+                </div>
             </div>
-            <div class="form-field">
-                <label><span>Password</span>
-                    <input type="password" id="password" placeholder="Password">
-                </label>
-            </div>
-            <div class="form-field">
-                <label><span>Role</span>
-                    <select id="role">
-                        <option value="staff">Staff</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                </label>
-            </div>
-        </div>
 
-        <div class="controls">
-            <button class="btn" onclick="createUser()">Create User</button>
-        </div>
-    </div>
-
-    <div class="box">
-        <h2>Users</h2>
-        <div class="table-wrap">
-            <table id="usersTable">
-                <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <div class="box">
-        <h2>Create Item</h2>
-        <div class="form-grid">
-            <div class="form-field">
-                <label><span>Description</span>
-                    <input id="itemDescription" placeholder="Description">
-                </label>
-            </div>
-            <div class="form-field">
-                <label><span>Unit</span>
-                    <input id="itemUnit" placeholder="Unit">
-                </label>
-            </div>
-            <div class="form-field">
-                <label><span>Price</span>
-                    <input id="itemPrice" placeholder="Price">
-                </label>
+            <div class="controls">
+                <button class="btn" onclick="createUser()">Create User</button>
             </div>
         </div>
 
-        <div class="controls">
-            <button class="btn" onclick="createItem()">Create Item</button>
+        <div class="box">
+            <h2>Users</h2>
+            <div class="table-wrap">
+                <table id="usersTable">
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </table>
+            </div>
         </div>
-    </div>
 
-    <div class="box">
-        <h2>Items</h2>
-        <div class="table-wrap">
-            <table id="itemsTable">
-                <tr>
-                    <th>ID</th>
-                    <th>Description</th>
-                    <th>Unit</th>
-                    <th>Price</th>
-                    <th>Actions</th>
-                </tr>
-            </table>
+        <div class="box">
+            <h2>Create Item</h2>
+            <div class="form-grid">
+                <div class="form-field">
+                    <label><span>Description</span>
+                        <input id="itemDescription" placeholder="Description">
+                    </label>
+                </div>
+                <div class="form-field">
+                    <label><span>Unit</span>
+                        <input id="itemUnit" placeholder="Unit">
+                    </label>
+                </div>
+                <div class="form-field">
+                    <label><span>Price</span>
+                        <input id="itemPrice" placeholder="Price">
+                    </label>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn" onclick="createItem()">Create Item</button>
+            </div>
         </div>
-    </div>
 
-    <script>
+        <div class="box">
+            <h2>Items</h2>
+            <div class="table-wrap">
+                <table id="itemsTable">
+                    <tr>
+                        <th>ID</th>
+                        <th>Description</th>
+                        <th>Unit</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
 
-        const BASE_URL = "https://billing-software-backend-04do.onrender.com";
-        // const BASE_URL = "https://supreme-space-spoon-qx9wr7g66ppfxvg7-10000.app.github.dev";
+        <div id="pageLoader" style="
+            position:fixed;
+            inset:0;
+            background:rgba(255,255,255,0.95);
+            z-index:99999;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            flex-direction:column;
+            font-family:Arial;
+        ">
 
-        async function authFetch(
-            url,
-            options = {}
-        ) {
+            <div style="
+            width:60px;
+            height:60px;
+            border:6px solid #ddd;
+            border-top:6px solid #4CAF50;
+            border-radius:50%;
+            animation:spin 1s linear infinite;
+            margin-bottom:20px;
+        "></div>
 
-            const token =
-                localStorage.getItem("token");
+            <h2>Loading Admin Panel...</h2>
 
-            options.headers = {
-                ...(options.headers || {}),
-                "Authorization":
-                    "Bearer " + token,
-                "Content-Type":
-                    "application/json"
-            };
+        </div>
+        <script>
 
-            const res =
-                await fetch(url, options);
+            const role = localStorage.getItem("role");
 
-            if (res.status === 401) {
+            if (role !== "admin") {
+                alert("Access denied");
+                window.location.href = "dashboard.html";
+            }
+            const BASE_URL = "https://billing-software-backend-04do.onrender.com";
+            // const BASE_URL = "https://supreme-space-spoon-qx9wr7g66ppfxvg7-10000.app.github.dev";
 
-                alert("Session expired");
+            async function authFetch(
+                url,
+                options = {}
+            ) {
 
-                localStorage.clear();
+                const token =
+                    localStorage.getItem("token");
 
-                window.location.href =
-                    "login.html";
+                options.headers = {
+                    ...(options.headers || {}),
+                    "Authorization":
+                        "Bearer " + token,
+                    "Content-Type":
+                        "application/json"
+                };
+
+                const res =
+                    await fetch(url, options);
+
+                if (res.status === 401) {
+
+                    alert("Session expired");
+
+                    localStorage.clear();
+
+                    window.location.href =
+                        "login.html";
+                }
+
+                return res;
             }
 
-            return res;
-        }
+            async function loadUsers() {
 
-        async function loadUsers() {
+                const res =
+                    await authFetch(
+                        `${BASE_URL}/users`
+                    );
 
-            const res =
-                await authFetch(
-                    `${BASE_URL}/users`
-                );
+                const users =
+                    await res.json();
 
-            const users =
-                await res.json();
+                const table =
+                    document.getElementById(
+                        "usersTable"
+                    );
 
-            const table =
-                document.getElementById(
-                    "usersTable"
-                );
-
-            table.innerHTML = `
+                table.innerHTML = `
         <tr>
             <th>ID</th>
             <th>Username</th>
@@ -525,9 +568,9 @@
         </tr>
             `;
 
-            users.forEach(user => {
+                users.forEach(user => {
 
-                table.innerHTML += `
+                    table.innerHTML += `
             <tr>
                 <td>${user.id}</td>
                 <td>${user.username}</td>
@@ -546,84 +589,84 @@
                 </td>
             </tr>
             `;
-            });
+                });
             }
 
-        async function createUser() {
+            async function createUser() {
 
-            const username =
-                document.getElementById(
-                    "username"
-                ).value;
+                const username =
+                    document.getElementById(
+                        "username"
+                    ).value;
 
-            const password =
-                document.getElementById(
-                    "password"
-                ).value;
+                const password =
+                    document.getElementById(
+                        "password"
+                    ).value;
 
-            const role =
-                document.getElementById(
-                    "role"
-                ).value;
+                const role =
+                    document.getElementById(
+                        "role"
+                    ).value;
 
-            await authFetch(
-                `${BASE_URL}/users`,
-                {
-                    method: "POST",
-
-                    body: JSON.stringify({
-                        username,
-                        password,
-                        role
-                    })
-                }
-            );
-
-            loadUsers();
-        }
-
-        async function toggleUser(id) {
-
-            await authFetch(
-                `${BASE_URL}/users/${id}/toggle`,
-                {
-                    method: "PUT"
-                }
-            );
-
-            loadUsers();
-        }
-
-        async function deleteUser(id) {
-
-            await authFetch(
-                `${BASE_URL}/users/${id}`,
-                {
-                    method: "DELETE"
-                }
-            );
-
-            loadUsers();
-        }
-
-        async function loadItems() {
-
-            const res =
                 await authFetch(
-                    `${BASE_URL}/admin/items`
+                    `${BASE_URL}/users`,
+                    {
+                        method: "POST",
+
+                        body: JSON.stringify({
+                            username,
+                            password,
+                            role
+                        })
+                    }
                 );
 
-            const items =
-                await res.json();
+                loadUsers();
+            }
 
-            items.sort((a, b) => a.id - b.id);
+            async function toggleUser(id) {
 
-            const table =
-                document.getElementById(
-                    "itemsTable"
+                await authFetch(
+                    `${BASE_URL}/users/${id}/toggle`,
+                    {
+                        method: "PUT"
+                    }
                 );
 
-            table.innerHTML = `
+                loadUsers();
+            }
+
+            async function deleteUser(id) {
+
+                await authFetch(
+                    `${BASE_URL}/users/${id}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+                loadUsers();
+            }
+
+            async function loadItems() {
+
+                const res =
+                    await authFetch(
+                        `${BASE_URL}/admin/items`
+                    );
+
+                const items =
+                    await res.json();
+
+                items.sort((a, b) => a.id - b.id);
+
+                const table =
+                    document.getElementById(
+                        "itemsTable"
+                    );
+
+                table.innerHTML = `
         <tr>
             <th>ID</th>
             <th>Description</th>
@@ -633,9 +676,9 @@
         </tr>
             `;
 
-            items.forEach(item => {
+                items.forEach(item => {
 
-                table.innerHTML += `
+                    table.innerHTML += `
             <tr>
                 <td>${item.id}</td>
                 <td>${item.description}</td>
@@ -648,223 +691,278 @@
                 </td>
             </tr>
             `;
-            });
-        }
-
-        async function createItem() {
-
-            const description =
-                document.getElementById(
-                    "itemDescription"
-                ).value;
-
-            const unit =
-                document.getElementById(
-                    "itemUnit"
-                ).value;
-
-            const price =
-                parseFloat(
-                    document.getElementById(
-                        "itemPrice"
-                    ).value
-                );
-
-            await authFetch(
-                `${BASE_URL}/admin/items`,
-                {
-                    method: "POST",
-
-                    body: JSON.stringify({
-                        description,
-                        unit,
-                        price
-                    })
-                }
-            );
-
-            loadItems();
-        }
-
-        async function loadSettings() {
-
-            const res =
-                await authFetch(
-                    `${BASE_URL}/admin/settings`
-                );
-
-            const data =
-                await res.json();
-
-            document.getElementById(
-                "company_name"
-            ).value =
-                data.company_name || "";
-
-            document.getElementById(
-                "address1"
-            ).value =
-                data.address1 || "";
-
-            document.getElementById(
-                "address2"
-            ).value =
-                data.address2 || "";
-
-            document.getElementById(
-                "phone"
-            ).value =
-                data.phone || "";
-
-            document.getElementById(
-                "bank_name"
-            ).value =
-                data.bank_name || "";
-
-            document.getElementById(
-                "account_holder"
-            ).value =
-                data.account_holder || "";
-
-            document.getElementById(
-                "account_number"
-            ).value =
-                data.account_number || "";
-
-            document.getElementById(
-                "ifsc"
-            ).value =
-                data.ifsc || "";
-
-            document.getElementById(
-                "footer_note"
-            ).value =
-                data.footer_note || "";
-
-            document.getElementById(
-                "show_bank_details"
-            ).checked =
-                data.show_bank_details;
-
-            document.getElementById(
-                "show_footer_note"
-            ).checked =
-                data.show_footer_note;
-        }
-
-
-        async function saveSettings() {
-
-            const payload = {
-
-                company_name:
-                    document.getElementById(
-                        "company_name"
-                    ).value,
-
-                address1:
-                    document.getElementById(
-                        "address1"
-                    ).value,
-
-                address2:
-                    document.getElementById(
-                        "address2"
-                    ).value,
-
-                phone:
-                    document.getElementById(
-                        "phone"
-                    ).value,
-
-                bank_name:
-                    document.getElementById(
-                        "bank_name"
-                    ).value,
-
-                account_holder:
-                    document.getElementById(
-                        "account_holder"
-                    ).value,
-
-                account_number:
-                    document.getElementById(
-                        "account_number"
-                    ).value,
-
-                ifsc:
-                    document.getElementById(
-                        "ifsc"
-                    ).value,
-
-                footer_note:
-                    document.getElementById(
-                        "footer_note"
-                    ).value,
-
-                show_bank_details:
-                    document.getElementById(
-                        "show_bank_details"
-                    ).checked,
-
-                show_footer_note:
-                    document.getElementById(
-                        "show_footer_note"
-                    ).checked
-            };
-
-            await authFetch(
-                `${BASE_URL}/admin/settings`,
-                {
-
-                    method: "PUT",
-
-                    body: JSON.stringify(
-                        payload
-                    )
-                }
-            );
-
-            alert(
-                "Settings saved successfully!"
-            );
-        }
-
-        async function deleteItem(id) {
-
-            await authFetch(
-                `${BASE_URL}/admin/items/${id}`,
-                {
-                    method: "DELETE"
-                }
-            );
-
-            loadItems();
-        }
-
-        window.onload = () => {
-
-            loadSettings();
-
-            const role =
-                localStorage.getItem("role");
-
-            if (role !== "admin") {
-
-                alert("Admin access required");
-
-                window.location.href =
-                    "index.html";
-
-                return;
+                });
             }
 
-            loadUsers();
+            async function createItem() {
 
-            loadItems();
-        }
+                const description =
+                    document.getElementById(
+                        "itemDescription"
+                    ).value;
 
-    </script>
+                const unit =
+                    document.getElementById(
+                        "itemUnit"
+                    ).value;
+
+                const price =
+                    parseFloat(
+                        document.getElementById(
+                            "itemPrice"
+                        ).value
+                    );
+
+                await authFetch(
+                    `${BASE_URL}/admin/items`,
+                    {
+                        method: "POST",
+
+                        body: JSON.stringify({
+                            description,
+                            unit,
+                            price
+                        })
+                    }
+                );
+
+                loadItems();
+            }
+
+            async function loadSettings() {
+
+                const res =
+                    await authFetch(
+                        `${BASE_URL}/admin/settings`
+                    );
+
+                const data =
+                    await res.json();
+
+                document.getElementById(
+                    "company_name"
+                ).value =
+                    data.company_name || "";
+
+                document.getElementById(
+                    "address1"
+                ).value =
+                    data.address1 || "";
+
+                document.getElementById(
+                    "address2"
+                ).value =
+                    data.address2 || "";
+
+                document.getElementById(
+                    "phone"
+                ).value =
+                    data.phone || "";
+
+                document.getElementById(
+                    "bank_name"
+                ).value =
+                    data.bank_name || "";
+
+                document.getElementById(
+                    "account_holder"
+                ).value =
+                    data.account_holder || "";
+
+                document.getElementById(
+                    "account_number"
+                ).value =
+                    data.account_number || "";
+
+                document.getElementById(
+                    "ifsc"
+                ).value =
+                    data.ifsc || "";
+
+                document.getElementById(
+                    "footer_note"
+                ).value =
+                    data.footer_note || "";
+
+                document.getElementById(
+                    "show_bank_details"
+                ).checked =
+                    data.show_bank_details;
+
+                document.getElementById(
+                    "show_footer_note"
+                ).checked =
+                    data.show_footer_note;
+            }
+
+
+            async function saveSettings() {
+
+                const payload = {
+
+                    company_name:
+                        document.getElementById(
+                            "company_name"
+                        ).value,
+
+                    address1:
+                        document.getElementById(
+                            "address1"
+                        ).value,
+
+                    address2:
+                        document.getElementById(
+                            "address2"
+                        ).value,
+
+                    phone:
+                        document.getElementById(
+                            "phone"
+                        ).value,
+
+                    bank_name:
+                        document.getElementById(
+                            "bank_name"
+                        ).value,
+
+                    account_holder:
+                        document.getElementById(
+                            "account_holder"
+                        ).value,
+
+                    account_number:
+                        document.getElementById(
+                            "account_number"
+                        ).value,
+
+                    ifsc:
+                        document.getElementById(
+                            "ifsc"
+                        ).value,
+
+                    footer_note:
+                        document.getElementById(
+                            "footer_note"
+                        ).value,
+
+                    show_bank_details:
+                        document.getElementById(
+                            "show_bank_details"
+                        ).checked,
+
+                    show_footer_note:
+                        document.getElementById(
+                            "show_footer_note"
+                        ).checked
+                };
+
+                await authFetch(
+                    `${BASE_URL}/admin/settings`,
+                    {
+
+                        method: "PUT",
+
+                        body: JSON.stringify(
+                            payload
+                        )
+                    }
+                );
+
+                alert(
+                    "Settings saved successfully!"
+                );
+            }
+
+            async function deleteItem(id) {
+
+                await authFetch(
+                    `${BASE_URL}/admin/items/${id}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+                loadItems();
+            }
+
+            // window.onload = () => {
+
+            //     loadSettings();
+
+            //     const role =
+            //         localStorage.getItem("role");
+
+            //     if (role !== "admin") {
+
+            //         alert("Admin access required");
+
+            //         window.location.href =
+            //             "index.html";
+
+            //         return;
+            //     }
+
+            //     loadUsers();
+
+            //     loadItems();
+            // }
+
+            window.onload = async () => {
+
+                const role =
+                    localStorage.getItem("role");
+
+                if (role !== "admin") {
+
+                    alert("Admin access required");
+
+                    window.location.href =
+                        "index.html";
+
+                    return;
+                }
+
+                showLoader();
+
+                try {
+
+                    await Promise.all([
+
+                        loadSettings(),
+                        loadUsers(),
+                        loadItems()
+
+                    ]);
+
+                } catch (err) {
+
+                    console.error(err);
+
+                    alert(
+                        "Failed to load admin panel"
+                    );
+
+                } finally {
+
+                    hideLoader();
+                }
+            }
+
+            function showLoader() {
+
+                document.getElementById(
+                    "pageLoader"
+                ).style.display = "flex";
+            }
+
+            function hideLoader() {
+
+                document.getElementById(
+                    "pageLoader"
+                ).style.display = "none";
+            }
+
+        </script>
 
 </body>
 
