@@ -20,7 +20,8 @@
 
             font-family: 'Segoe UI', Arial;
 
-            background: #f4f6fb;
+            /* background: #f4f6fb; */
+            background: linear-gradient(180deg, #6A89A7, #be4242);
 
             color: #222;
         }
@@ -361,6 +362,150 @@
                 font-size: 13px;
             }
         }
+
+        /* Glassmorphic Enhancements */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+            color: #fff;
+        }
+
+        .logo {
+            color: #fff;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #fff;
+        }
+
+        .card h3 {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .card p {
+            color: #fff;
+        }
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #fff;
+        }
+
+        .table-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        th {
+            background: rgba(76, 175, 80, 0.8);
+        }
+
+        td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Enhanced Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .quick-actions button {
+                width: 100%;
+                padding: 14px 20px;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: space-around;
+            }
+
+            .navbar {
+                padding: 10px 15px;
+            }
+
+            h1 {
+                font-size: 28px;
+                text-align: center;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .card p {
+                font-size: 26px;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 20px;
+            }
+
+            .nav-links button {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .quick-actions button {
+                font-size: 14px;
+            }
+
+            .card h3 {
+                font-size: 14px;
+            }
+
+            .card p {
+                font-size: 24px;
+            }
+
+            .chart-card {
+                padding: 15px;
+            }
+
+            .table-card {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 400px;
+            }
+        }
     </style>
 
 </head>
@@ -379,7 +524,7 @@
                 Dashboard
             </button>
 
-            <button onclick="window.location.href='index.html'">
+<button onclick="navigateToCreateBill()">
                 Create Bill
             </button>
 
@@ -457,7 +602,7 @@
 
             <div class="quick-actions">
 
-                <button onclick="window.location.href='index.html'">
+                <button onclick="navigateToCreateBill()">
                     + Create Bill
                 </button>
 
@@ -915,6 +1060,11 @@
         // Added 12 may 2026
         function logout() {
             logoutUser();
+        }
+
+        function navigateToCreateBill() {
+            localStorage.removeItem("editBillId");
+            window.location.href = "index.html";
         }
 
         loadDashboard();

@@ -508,17 +508,60 @@
             }
         }
 
-        async function viewPDF(id) {
-            const res = await authFetch(`${BASE_URL}/bills/${id}/pdf`, { // 12 may 26 added authFetch instead of fetch
-                headers: {
-                    "Authorization": "Bearer " + localStorage.getItem("token")
-                }
-            });
+        function createActionLoader() {
+            if (document.getElementById("actionLoader")) {
+                return document.getElementById("actionLoader");
+            }
 
-            const data = await res.json();
-
-            window.open(data.pdf_url, "_blank");
+            const loader = document.createElement("div");
+            loader.id = "actionLoader";
+            loader.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;background:rgba(255,255,255,0.92);z-index:9999;";
+            loader.innerHTML = `
+                <div style="text-align:center; padding:20px; border-radius:12px; background:#fff; box-shadow:0 2px 15px rgba(0,0,0,0.15);">
+                    <div style="width:48px; height:48px; border:5px solid #ddd; border-top-color:#4CAF50; border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 15px;"></div>
+                    <div id="loaderText" style="font-size:16px; color:#333;">Loading...</div>
+                </div>
+            `;
+            document.body.appendChild(loader);
+            return loader;
         }
+
+        function showActionLoader(message) {
+            const loader = createActionLoader();
+            const textEl = loader.querySelector("#loaderText");
+            if (textEl) {
+                textEl.innerText = message;
+            }
+            loader.style.display = "flex";
+        }
+
+        function hideActionLoader() {
+            const loader = document.getElementById("actionLoader");
+            if (loader) {
+                loader.style.display = "none";
+            }
+        }
+
+        async function viewPDF(id) {
+            try {
+                showActionLoader("Opening PDF...");
+                const res = await authFetch(`${BASE_URL}/bills/${id}/pdf`, { // 12 may 26 added authFetch instead of fetch
+                    headers: {
+                        "Authorization": "Bearer " + localStorage.getItem("token")
+                    }
+                });
+
+                const data = await res.json();
+
+                window.open(data.pdf_url, "_blank");
+            } catch (err) {
+                console.error(err);
+                alert("Unable to open PDF. Please try again.");
+            } finally {
+                hideActionLoader();
+            }
+        }
+                
 
         // 🔥 ADDED: download function
         async function downloadPDF(id) {
@@ -540,7 +583,11 @@
 
         function editBill(id) {
             localStorage.setItem("editBillId", id);
-            window.location.href = "./index.html";
+            localStorage.setItem("showEditLoading", "true");
+            showActionLoader("Opening editor...");
+            setTimeout(() => {
+                window.location.href = "./index.html";
+            }, 80);
         }
 
 
