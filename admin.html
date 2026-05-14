@@ -5,6 +5,7 @@
 <head>
     <title>Admin Portal</title>
 
+
     <style>
         body {
             font-family: Arial;
@@ -17,14 +18,15 @@
             padding: 20px;
             margin-bottom: 20px;
             border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         h2 {
             margin-top: 0;
         }
 
-        input, select {
+        input,
+        select {
             padding: 8px;
             margin: 5px;
         }
@@ -40,7 +42,8 @@
             border-collapse: collapse;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 10px;
         }
@@ -54,131 +57,184 @@
 
 <body>
 
-<h1>Admin Portal</h1>
+    <h1>Admin Portal</h1>
+    <div class="box">
 
-<div class="box">
+        <h2>Company Settings</h2>
 
-    <h2>Create User</h2>
+        <input id="company_name" placeholder="Company Name">
 
-    <input id="username" placeholder="Username">
+        <input id="address1" placeholder="Address Line 1">
 
-    <input id="password" placeholder="Password">
+        <input id="address2" placeholder="Address Line 2">
 
-    <select id="role">
-        <option value="staff">Staff</option>
-        <option value="admin">Admin</option>
-    </select>
+        <input id="phone" placeholder="Phone">
 
-    <button onclick="createUser()">
-        Create User
-    </button>
+        <hr>
 
-</div>
+        <input id="bank_name" placeholder="Bank Name">
 
-<div class="box">
+        <input id="account_holder" placeholder="Account Holder">
 
-    <h2>Users</h2>
+        <input id="account_number" placeholder="Account Number">
 
-    <table id="usersTable">
+        <input id="ifsc" placeholder="IFSC">
 
-        <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
+        <hr>
 
-    </table>
+        <textarea id="footer_note" placeholder="Footer Note" style="
+            width:100%;
+            height:100px;
+        "></textarea>
 
-</div>
+        <br><br>
 
-<div class="box">
+        <label>
+            <input type="checkbox" id="show_bank_details">
 
-    <h2>Create Item</h2>
+            Show Bank Details
+        </label>
 
-    <input id="itemDescription" placeholder="Description">
+        <br>
 
-    <input id="itemUnit" placeholder="Unit">
+        <label>
+            <input type="checkbox" id="show_footer_note">
 
-    <input id="itemPrice" placeholder="Price">
+            Show Footer Note
+        </label>
 
-    <button onclick="createItem()">
-        Create Item
-    </button>
+        <br><br>
 
-</div>
+        <button onclick="saveSettings()">
+            Save Settings
+        </button>
 
-<div class="box">
+    </div>
 
-    <h2>Items</h2>
+    <div class="box">
 
-    <table id="itemsTable">
+        <h2>Create User</h2>
 
-        <tr>
-            <th>ID</th>
-            <th>Description</th>
-            <th>Unit</th>
-            <th>Price</th>
-            <th>Actions</th>
-        </tr>
+        <input id="username" placeholder="Username">
 
-    </table>
+        <input id="password" placeholder="Password">
 
-</div>
+        <select id="role">
+            <option value="staff">Staff</option>
+            <option value="admin">Admin</option>
+        </select>
 
-<script>
+        <button onclick="createUser()">
+            Create User
+        </button>
 
-const BASE_URL = "https://billing-software-backend-04do.onrender.com";
+    </div>
 
-async function authFetch(
-    url,
-    options = {}
-) {
+    <div class="box">
 
-    const token =
-        localStorage.getItem("token");
+        <h2>Users</h2>
 
-    options.headers = {
-        ...(options.headers || {}),
-        "Authorization":
-            "Bearer " + token,
-        "Content-Type":
-            "application/json"
-    };
+        <table id="usersTable">
 
-    const res =
-        await fetch(url, options);
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
 
-    if (res.status === 401) {
+        </table>
 
-        alert("Session expired");
+    </div>
 
-        localStorage.clear();
+    <div class="box">
 
-        window.location.href =
-            "login.html";
-    }
+        <h2>Create Item</h2>
 
-    return res;
-}
+        <input id="itemDescription" placeholder="Description">
 
-async function loadUsers() {
+        <input id="itemUnit" placeholder="Unit">
 
-    const res =
-        await authFetch(
-            `${BASE_URL}/users`
-        );
+        <input id="itemPrice" placeholder="Price">
 
-    const users =
-        await res.json();
+        <button onclick="createItem()">
+            Create Item
+        </button>
 
-    const table =
-        document.getElementById(
-            "usersTable"
-        );
+    </div>
 
-    table.innerHTML = `
+    <div class="box">
+
+        <h2>Items</h2>
+
+        <table id="itemsTable">
+
+            <tr>
+                <th>ID</th>
+                <th>Description</th>
+                <th>Unit</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+
+        </table>
+
+    </div>
+
+    <script>
+
+        const BASE_URL = "https://billing-software-backend-04do.onrender.com";
+        // const BASE_URL = "https://supreme-space-spoon-qx9wr7g66ppfxvg7-10000.app.github.dev";
+
+        async function authFetch(
+            url,
+            options = {}
+        ) {
+
+            const token =
+                localStorage.getItem("token");
+
+            options.headers = {
+                ...(options.headers || {}),
+                "Authorization":
+                    "Bearer " + token,
+                "Content-Type":
+                    "application/json"
+            };
+
+            const res =
+                await fetch(url, options);
+
+            if (res.status === 401) {
+
+                alert("Session expired");
+
+                localStorage.clear();
+
+                window.location.href =
+                    "login.html";
+            }
+
+            return res;
+        }
+
+        async function loadUsers() {
+
+            const res =
+                await authFetch(
+                    `${BASE_URL}/users`
+                );
+
+            const users =
+                await res.json();
+
+            const table =
+                document.getElementById(
+                    "usersTable"
+                );
+
+            table.innerHTML = `
         <tr>
             <th>ID</th>
             <th>Username</th>
@@ -188,9 +244,9 @@ async function loadUsers() {
         </tr>
     `;
 
-    users.forEach(user => {
+            users.forEach(user => {
 
-        table.innerHTML += `
+                table.innerHTML += `
             <tr>
                 <td>${user.id}</td>
                 <td>${user.username}</td>
@@ -209,82 +265,82 @@ async function loadUsers() {
                 </td>
             </tr>
         `;
-    });
-}
-
-async function createUser() {
-
-    const username =
-        document.getElementById(
-            "username"
-        ).value;
-
-    const password =
-        document.getElementById(
-            "password"
-        ).value;
-
-    const role =
-        document.getElementById(
-            "role"
-        ).value;
-
-    await authFetch(
-        `${BASE_URL}/users`,
-        {
-            method: "POST",
-
-            body: JSON.stringify({
-                username,
-                password,
-                role
-            })
+            });
         }
-    );
 
-    loadUsers();
-}
+        async function createUser() {
 
-async function toggleUser(id) {
+            const username =
+                document.getElementById(
+                    "username"
+                ).value;
 
-    await authFetch(
-        `${BASE_URL}/users/${id}/toggle`,
-        {
-            method: "PUT"
+            const password =
+                document.getElementById(
+                    "password"
+                ).value;
+
+            const role =
+                document.getElementById(
+                    "role"
+                ).value;
+
+            await authFetch(
+                `${BASE_URL}/users`,
+                {
+                    method: "POST",
+
+                    body: JSON.stringify({
+                        username,
+                        password,
+                        role
+                    })
+                }
+            );
+
+            loadUsers();
         }
-    );
 
-    loadUsers();
-}
+        async function toggleUser(id) {
 
-async function deleteUser(id) {
+            await authFetch(
+                `${BASE_URL}/users/${id}/toggle`,
+                {
+                    method: "PUT"
+                }
+            );
 
-    await authFetch(
-        `${BASE_URL}/users/${id}`,
-        {
-            method: "DELETE"
+            loadUsers();
         }
-    );
 
-    loadUsers();
-}
+        async function deleteUser(id) {
 
-async function loadItems() {
+            await authFetch(
+                `${BASE_URL}/users/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
 
-    const res =
-        await authFetch(
-            `${BASE_URL}/admin/items`
-        );
+            loadUsers();
+        }
 
-    const items =
-        await res.json();
+        async function loadItems() {
 
-    const table =
-        document.getElementById(
-            "itemsTable"
-        );
+            const res =
+                await authFetch(
+                    `${BASE_URL}/admin/items`
+                );
 
-    table.innerHTML = `
+            const items =
+                await res.json();
+
+            const table =
+                document.getElementById(
+                    "itemsTable"
+                );
+
+            table.innerHTML = `
         <tr>
             <th>ID</th>
             <th>Description</th>
@@ -294,9 +350,9 @@ async function loadItems() {
         </tr>
     `;
 
-    items.forEach(item => {
+            items.forEach(item => {
 
-        table.innerHTML += `
+                table.innerHTML += `
             <tr>
                 <td>${item.id}</td>
                 <td>${item.description}</td>
@@ -309,78 +365,225 @@ async function loadItems() {
                 </td>
             </tr>
         `;
-    });
-}
+            });
+        }
 
-async function createItem() {
+        async function createItem() {
 
-    const description =
-        document.getElementById(
-            "itemDescription"
-        ).value;
+            const description =
+                document.getElementById(
+                    "itemDescription"
+                ).value;
 
-    const unit =
-        document.getElementById(
-            "itemUnit"
-        ).value;
+            const unit =
+                document.getElementById(
+                    "itemUnit"
+                ).value;
 
-    const price =
-        parseFloat(
+            const price =
+                parseFloat(
+                    document.getElementById(
+                        "itemPrice"
+                    ).value
+                );
+
+            await authFetch(
+                `${BASE_URL}/admin/items`,
+                {
+                    method: "POST",
+
+                    body: JSON.stringify({
+                        description,
+                        unit,
+                        price
+                    })
+                }
+            );
+
+            loadItems();
+        }
+
+        async function loadSettings() {
+
+            const res =
+                await authFetch(
+                    `${BASE_URL}/admin/settings`
+                );
+
+            const data =
+                await res.json();
+
             document.getElementById(
-                "itemPrice"
-            ).value
-        );
+                "company_name"
+            ).value =
+                data.company_name || "";
 
-    await authFetch(
-        `${BASE_URL}/admin/items`,
-        {
-            method: "POST",
+            document.getElementById(
+                "address1"
+            ).value =
+                data.address1 || "";
 
-            body: JSON.stringify({
-                description,
-                unit,
-                price
-            })
+            document.getElementById(
+                "address2"
+            ).value =
+                data.address2 || "";
+
+            document.getElementById(
+                "phone"
+            ).value =
+                data.phone || "";
+
+            document.getElementById(
+                "bank_name"
+            ).value =
+                data.bank_name || "";
+
+            document.getElementById(
+                "account_holder"
+            ).value =
+                data.account_holder || "";
+
+            document.getElementById(
+                "account_number"
+            ).value =
+                data.account_number || "";
+
+            document.getElementById(
+                "ifsc"
+            ).value =
+                data.ifsc || "";
+
+            document.getElementById(
+                "footer_note"
+            ).value =
+                data.footer_note || "";
+
+            document.getElementById(
+                "show_bank_details"
+            ).checked =
+                data.show_bank_details;
+
+            document.getElementById(
+                "show_footer_note"
+            ).checked =
+                data.show_footer_note;
         }
-    );
 
-    loadItems();
-}
 
-async function deleteItem(id) {
+        async function saveSettings() {
 
-    await authFetch(
-        `${BASE_URL}/admin/items/${id}`,
-        {
-            method: "DELETE"
+            const payload = {
+
+                company_name:
+                    document.getElementById(
+                        "company_name"
+                    ).value,
+
+                address1:
+                    document.getElementById(
+                        "address1"
+                    ).value,
+
+                address2:
+                    document.getElementById(
+                        "address2"
+                    ).value,
+
+                phone:
+                    document.getElementById(
+                        "phone"
+                    ).value,
+
+                bank_name:
+                    document.getElementById(
+                        "bank_name"
+                    ).value,
+
+                account_holder:
+                    document.getElementById(
+                        "account_holder"
+                    ).value,
+
+                account_number:
+                    document.getElementById(
+                        "account_number"
+                    ).value,
+
+                ifsc:
+                    document.getElementById(
+                        "ifsc"
+                    ).value,
+
+                footer_note:
+                    document.getElementById(
+                        "footer_note"
+                    ).value,
+
+                show_bank_details:
+                    document.getElementById(
+                        "show_bank_details"
+                    ).checked,
+
+                show_footer_note:
+                    document.getElementById(
+                        "show_footer_note"
+                    ).checked
+            };
+
+            await authFetch(
+                `${BASE_URL}/admin/settings`,
+                {
+
+                    method: "PUT",
+
+                    body: JSON.stringify(
+                        payload
+                    )
+                }
+            );
+
+            alert(
+                "Settings saved successfully!"
+            );
         }
-    );
 
-    loadItems();
-}
+        async function deleteItem(id) {
 
-window.onload = () => {
+            await authFetch(
+                `${BASE_URL}/admin/items/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
 
-    const role =
-        localStorage.getItem("role");
+            loadItems();
+        }
 
-    if(role !== "admin") {
+        window.onload = () => {
 
-        alert("Admin access required");
+            loadSettings();
 
-        window.location.href =
-            "index.html";
+            const role =
+                localStorage.getItem("role");
 
-        return;
-    }
+            if (role !== "admin") {
 
-    loadUsers();
+                alert("Admin access required");
 
-    loadItems();
-}
+                window.location.href =
+                    "index.html";
 
-</script>
+                return;
+            }
+
+            loadUsers();
+
+            loadItems();
+        }
+
+    </script>
 
 </body>
+
 </html>
 ```
