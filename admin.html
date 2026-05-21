@@ -2,300 +2,273 @@
 <html>
 
 <head>
-    <title>Admin Portal</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <title>Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
-        :root {
-            color-scheme: light;
-            --bg: #f4f7fb;
-            --surface: #ffffff;
-            --surface-strong: #f8fbff;
-            --border: #d9e2ec;
-            --text: #102a43;
-            --muted: #627d98;
-            --primary: #2563eb;
-            --primary-strong: #1d4ed8;
-            --danger: #ef4444;
-        }
-
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
-
         body {
-            margin: 0;
+            font-family: 'Poppins', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(180deg, #1966cd 0%, rgb(81, 147, 214) 100%);
-            font-family: Inter, Arial, sans-serif;
-            color: var(--text);
-            line-height: 1.7;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        .container {
-            width: min(1200px, calc(100% - 36px));
-            margin: 0 auto;
-            padding: 32px 0 44px;
-        }
-
-        .page-header {
-            margin-bottom: 24px;
-            padding: 28px 28px 32px;
-            background: #eff6ff;
-            border: 1px solid rgba(37, 99, 235, 0.15);
-            border-radius: 28px;
             display: flex;
-            flex-direction: column;
-            gap: 14px;
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
-        }
-
-        .page-header h1 {
-            margin: 0;
-            font-size: clamp(2rem, 2.4vw, 2.8rem);
-            letter-spacing: -0.03em;
-            line-height: 1.05;
-        }
-
-        .page-header p {
-            margin: 0;
-            color: var(--muted);
-            max-width: 760px;
-            font-size: 1rem;
-        }
-
-        .box {
-            background: var(--surface);
-            padding: 32px;
-            margin-bottom: 24px;
-            border-radius: 28px;
-            border: 1px solid rgba(148, 163, 184, 0.18);
-            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.05);
-        }
-
-        .box h2 {
-            margin-top: 0;
-            margin-bottom: 18px;
-            font-size: 1.55rem;
-        }
-
-        .box h3 {
-            margin: 0 0 16px;
-            font-size: 1rem;
-            color: var(--muted);
-            font-weight: 500;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            align-items: stretch;
-        }
-
-        .form-field {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        label span {
-            font-size: 1rem;
-            color: var(--muted);
-        }
-
-        input,
-        select,
-        textarea {
-            width: 100%;
-            min-height: 50px;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            background: var(--surface-strong);
-            padding: 14px 16px;
-            color: var(--text);
-            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-            font-size: 1rem;
-        }
-
-        textarea {
-            min-height: 140px;
-            resize: vertical;
-        }
-
-        input:focus,
-        select:focus,
-        textarea:focus {
-            border-radius: 20px;
-            outline: none;
-            border-color: rgba(37, 99, 235, 0.65);
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.14);
-            background: #ffffff;
-        }
-
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
+            justify-content: center;
             align-items: center;
-            justify-content: flex-end;
-            margin-top: 24px;
-        }
-
-        .switch-row {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 24px;
-            margin-top: 20px;
-            color: var(--muted);
-        }
-
-        .switch-row label {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 500;
-        }
-
-        .switch-row input {
-            width: auto;
-            height: auto;
-            margin: 0;
-        }
-
-        button {
-            border: none;
-            border-radius: 999px;
-            cursor: pointer;
-            padding: 14px 24px;
-            font-weight: 600;
-            font-size: 0.98rem;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
-        }
-
-        .btn {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.18);
-        }
-
-        .btn:hover {
-            background: var(--primary-strong);
-            transform: translateY(-1px);
-        }
-
-        .btn.secondary {
-            background: #f8fafc;
-            color: var(--text);
-            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-        }
-
-        .btn.secondary:hover {
-            background: #e2e8f0;
-        }
-
-        .btn.danger {
-            background: var(--danger);
-            color: white;
-            box-shadow: 0 12px 28px rgba(239, 68, 68, 0.18);
-        }
-
-        .btn.danger:hover {
-            background: #dc2626;
-        }
-
-        .table-wrap {
-            overflow-x: auto;
-            margin-top: 16px;
-            border-radius: 20px;
-            background: #f8fbff;
-            padding: 6px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
+            padding: 20px;
+            position: relative;
             overflow: hidden;
-            border-radius: 18px;
-            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
-            background: white;
+            background-color: #0f172a;
         }
 
-        th,
-        td {
-            padding: 18px 20px;
-            text-align: left;
+        /* PARALLAX BACKGROUND */
+        .parallax-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+
+            background-color: #0f172a;
+
+            background-image:
+                url('./img1.png'),
+                url('./img2.png'),
+                url('./img3.png'),
+                url('./img4.png'),
+                url('./img5.png');
+
+            background-repeat: repeat-x;
+
+            background-position:
+                0 20%,
+                0 100%,
+                0 50%,
+                0 100%,
+                0 0;
+
+            background-size:
+                2500px,
+                800px,
+                500px 200px,
+                1000px,
+                400px 260px;
+
+            animation: parallaxMove 25s linear infinite;
+
+            z-index: 0;
         }
 
-        th {
-            background: #334155;
-            color: #f8fafc;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            font-size: 0.95rem;
+        /* DARK OVERLAY */
+        .parallax-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 1;
         }
 
-        td {
-            border-top: 1px solid #e2e8f0;
-            color: #334155;
-            font-size: 0.96rem;
+        @keyframes parallaxMove {
+            100% {
+                background-position:
+                    -5000px 20%,
+                    -800px 100%,
+                    500px 50%,
+                    1000px 100%,
+                    400px 0;
+            }
         }
 
-        tr:nth-child(even) td {
-            background: #f8fbff;
+        /* DARK OVERLAY */
+        /* body::before {
+
+            html,
+            body {
+                width: 100%;
+                min-height: 100%;
+            }
+
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.28);
+            backdrop-filter: blur(2px);
+        } */
+
+        /* LOGIN CARD */
+        .login-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 390px;
+            padding: 38px 28px;
+            border-radius: 24px;
+            background:
+                rgba(255, 255, 255, 0.12);
+            border:
+                1px solid rgba(255, 255, 255, 0.22);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            color: white;
+            animation: fadeIn 0.6s ease;
+            animation: floatCard 5s ease-in-out infinite;
         }
 
-        tr:hover td {
-            background: #e8f1ff;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .table-actions {
+        @keyframes floatCard {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .login-container h1 {
+            font-size: 38px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.82);
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* INPUT GROUP */
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 48px 14px 16px;
+            border-radius: 14px;
+            border:
+                1px solid rgba(255, 255, 255, 0.3);
+            background:
+                rgba(255, 255, 255, 0.08);
+            color: white;
+            outline: none;
+            font-size: 15px;
+            transition: 0.25s ease;
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        .input-group input:focus {
+            border-color: #7CFFB2;
+            background:
+                rgba(255, 255, 255, 0.14);
+            box-shadow:
+                0 0 12px rgba(124, 255, 178, 0.3);
+        }
+
+        /* ICONS */
+        .input-group span {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            opacity: 0.75;
+        }
+
+        /* REMEMBER */
+        .remember-row {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: flex-start;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 22px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.85);
         }
 
-        .table-actions button {
-            min-width: 92px;
-            padding: 10px 14px;
-            font-size: 0.92rem;
-        }
-
-        hr {
+        /* LOGIN BUTTON */
+        .login-btn {
+            width: 100%;
+            padding: 14px;
             border: none;
-            border-top: 1px solid #e2e8f0;
-            margin: 28px 0;
+            border-radius: 14px;
+            background:
+                linear-gradient(135deg,
+                    #b6ff00,
+                    #00c853);
+            color: white;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.25s ease;
+            box-shadow:
+                0 8px 20px rgba(0, 200, 83, 0.35);
         }
 
-        @media (max-width: 720px) {
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 10px 24px rgba(0, 200, 83, 0.42);
+        }
 
-            .page-header,
-            .box {
-                padding: 22px;
-            }
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
 
-            .controls,
-            .switch-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
+        /* FOOTER */
+        .footer-text {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.72);
+        }
 
-            .container {
-                padding: 22px 0 30px;
-            }
+        /* ERROR */
+        .error-msg {
+            margin-top: 18px;
+            text-align: center;
+            color: #ffb3b3;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* LOADER */
+
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: auto;
         }
 
         @keyframes spin {
-
             0% {
                 transform: rotate(0deg);
             }
@@ -304,649 +277,209 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* MOBILE */
+        @media(max-width: 480px) {
+            body {
+                padding: 16px;
+            }
+
+            .login-container {
+                padding: 34px 22px;
+                border-radius: 20px;
+            }
+
+            .login-container h1 {
+                font-size: 32px;
+            }
+
+            .subtitle {
+                font-size: 13px;
+            }
+
+            .input-group input {
+                padding: 13px 44px 13px 14px;
+                font-size: 14px;
+            }
+
+            .login-btn {
+                padding: 13px;
+                font-size: 15px;
+            }
+        }
+
+        /* DEVELOPER CREDIT */
+        .developer-credit {
+            position: fixed;
+            bottom: 18px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            z-index: 999;
+        }
+
+        .developer-credit a {
+            color: #b6ff00;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s ease;
+        }
+
+        .developer-credit a:hover {
+            color: #7CFFB2;
+            text-shadow: 0 0 8px rgba(124, 255, 178, 0.8);
+        }
     </style>
     <script>
         window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
     </script>
     <script defer src="/_vercel/insights/script.js"></script>
+
 </head>
 
 <body>
-    <div class="container">
-        <div class="page-header">
-            <h1>Admin Portal</h1>
-            <p>Manage company settings, users and items from one centralized dashboard with a polished experience.</p>
-            <button class="btn secondary" onclick="window.location.href='dashboard.html'">Go to Dashboard</button>
+
+    <div class="parallax-bg"></div>
+    <div class="parallax-overlay"></div>
+
+    <div class="login-container">
+        <h1>Login</h1>
+        <p class="subtitle">
+            Welcome back please login to your account
+        </p>
+
+        <!-- USERNAME -->
+        <div class="input-group">
+            <input type="text" id="username" placeholder="User Name">
+            <span>👤</span>
         </div>
 
-        <div class="box">
-            <h2>Company Settings</h2>
-
-            <div class="form-grid">
-                <div class="form-field">
-                    <label><span>Company Name</span>
-                        <input id="company_name" placeholder="Company Name">
-                    </label>
-                </div>
-                <div class="form-field">
-                    <label><span>Phone</span>
-                        <input id="phone" placeholder="Phone">
-                    </label>
-                </div>
-                <div class="form-field">
-                    <label><span>Address Line 1</span>
-                        <input id="address1" placeholder="Address Line 1">
-                    </label>
-                </div>
-                <div class="form-field">
-                    <label><span>Address Line 2</span>
-                        <input id="address2" placeholder="Address Line 2">
-                    </label>
-                </div>
-            </div>
-
-            <hr>
-
-            <h3>Bank Details</h3>
-
-            <div class="form-grid">
-                <div class="form-field">
-                    <label><span>Bank Name</span>
-                        <input id="bank_name" placeholder="Bank Name">
-                    </label>
-                </div>
-                <div class="form-field">
-                    <label><span>Account Holder</span>
-                        <input id="account_holder" placeholder="Account Holder">
-                    </label>
-                </div>
-                <div class="form-field">
-                    <label><span>Account Number</span>
-                        <input id="account_number" placeholder="Account Number">
-                    </label>
-                </div>
-                <div class="form-field">
-                    <label><span>IFSC</span>
-                        <input id="ifsc" placeholder="IFSC">
-                    </label>
-                </div>
-            </div>
-
-            <hr>
-
-            <div class="form-field">
-                <label><span>Footer Note</span>
-                    <textarea id="footer_note" placeholder="Footer Note"></textarea>
-                </label>
-            </div>
-
-            <div class="switch-row">
-                <label>
-                    <input type="checkbox" id="show_bank_details">
-                    Show Bank Details
-                </label>
-                <label>
-                    <input type="checkbox" id="show_footer_note">
-                    Show Footer Note
-                </label>
-            </div>
-
-            <div class="controls">
-                <button class="btn" onclick="saveSettings()">Save Settings</button>
-            </div>
+        <!-- PASSWORD -->
+        <div class="input-group">
+            <input type="password" id="password" placeholder="Password">
+            <span>🔒</span>
         </div>
 
-        <div class="box">
-            <h2>Create User</h2>
-
-            <div class="form-grid">
-                <div class="form-field">
-                    <label><span>Username</span>
-                        <input id="username" placeholder="Username">
-                    </label>
-                </div>
-                <div class="form-field">
-                    <label><span>Password</span>
-                        <input type="password" id="password" placeholder="Password">
-                    </label>
-                </div>
-                <div class="form-field">
-                    <label><span>Role</span>
-                        <select id="role">
-                            <option value="staff">Staff</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </label>
-                </div>
-            </div>
-
-            <div class="controls">
-                <button class="btn" onclick="createUser()">Create User</button>
-            </div>
+        <!-- REMEMBER -->
+        <div class="remember-row">
+            <input type="checkbox" checked>
+            <label>
+                Remember me
+            </label>
         </div>
 
-        <div class="box">
-            <h2>Users</h2>
-            <div class="table-wrap">
-                <table id="usersTable">
-                    <tr>
-                        <th>ID</th>
-                        <th>Username</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </table>
-            </div>
+        <!-- LOGIN BUTTON -->
+        <button class="login-btn" id="loginBtn" onclick="login()">
+            Login
+        </button>
+
+        <!-- ERROR -->
+        <div id="errorMsg" class="error-msg">
         </div>
 
-        <div class="box">
-            <h2>Create Item</h2>
-            <div class="form-grid">
-                <div class="form-field">
-                    <label><span>Description</span>
-                        <input id="itemDescription" placeholder="Description">
-                    </label>
-                </div>
-                <div class="form-field">
-                    <label><span>Unit</span>
-                        <input id="itemUnit" placeholder="Unit">
-                    </label>
-                </div>
-                <div class="form-field">
-                    <label><span>Price</span>
-                        <input id="itemPrice" placeholder="Price">
-                    </label>
-                </div>
-            </div>
-
-            <div class="controls">
-                <button class="btn" onclick="createItem()">Create Item</button>
-            </div>
+        <!-- FOOTER -->
+        <div class="footer-text">
+            Billing Management System
         </div>
 
-        <div class="box">
-            <h2>Items</h2>
-            <div class="table-wrap">
-                <table id="itemsTable">
-                    <tr>
-                        <th>ID</th>
-                        <th>Description</th>
-                        <th>Unit</th>
-                        <th>Price</th>
-                        <th>Actions</th>
-                    </tr>
-                </table>
-            </div>
-        </div>
+    </div>
 
-        <div id="pageLoader" style="
-            position:fixed;
-            inset:0;
-            background:rgba(255,255,255,0.95);
-            z-index:99999;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            flex-direction:column;
-            font-family:Arial;
-        ">
+    <script>
+        const BASE_URL = "https://billing-software-backend-04do.onrender.com";
+        // const BASE_URL = "https://supreme-space-spoon-qx9wr7g66ppfxvg7-10000.app.github.dev";
 
-            <div style="
-            width:60px;
-            height:60px;
-            border:6px solid #ddd;
-            border-top:6px solid #4CAF50;
-            border-radius:50%;
-            animation:spin 1s linear infinite;
-            margin-bottom:20px;
-        "></div>
+        async function login() {
+            const username =
+                document.getElementById(
+                    "username"
+                ).value;
 
-            <h2>Loading Admin Panel...</h2>
+            const password =
+                document.getElementById(
+                    "password"
+                ).value;
 
-        </div>
-        <script>
+            const btn =
+                document.getElementById(
+                    "loginBtn"
+                );
 
-            const role = localStorage.getItem("role");
+            const error =
+                document.getElementById(
+                    "errorMsg"
+                );
 
-            if (role !== "admin") {
-                alert("Access denied");
-                window.location.href = "dashboard.html";
-            }
-            const BASE_URL = "https://billing-software-backend-04do.onrender.com";
-            // const BASE_URL = "https://supreme-space-spoon-qx9wr7g66ppfxvg7-10000.app.github.dev";
-
-            async function authFetch(
-                url,
-                options = {}
-            ) {
-
-                const token =
-                    localStorage.getItem("token");
-
-                options.headers = {
-                    ...(options.headers || {}),
-                    "Authorization":
-                        "Bearer " + token,
-                    "Content-Type":
-                        "application/json"
-                };
-
-                const res =
-                    await fetch(url, options);
-
-                if (res.status === 401) {
-
-                    alert("Session expired");
-
-                    localStorage.clear();
-
-                    window.location.href =
-                        "login.html";
-                }
-
-                return res;
-            }
-
-            async function loadUsers() {
-
-                const res =
-                    await authFetch(
-                        `${BASE_URL}/users`
-                    );
-
-                const users =
-                    await res.json();
-
-                const table =
-                    document.getElementById(
-                        "usersTable"
-                    );
-
-                table.innerHTML = `
-        <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
+            error.innerText = "";
+            // BUTTON LOADING
+            btn.disabled = true;
+            btn.innerHTML = `
+            <div class="loader"></div>
             `;
 
-                users.forEach(user => {
 
-                    table.innerHTML += `
-            <tr>
-                <td>${user.id}</td>
-                <td>${user.username}</td>
-                <td>${user.role}</td>
-                <td>
-                    ${user.is_active ? "Active" : "Disabled"}
-                </td>
-                <td>
-                    <button onclick="toggleUser(${user.id})">
-                        Toggle
-                    </button>
-
-                    <button onclick="deleteUser(${user.id})">
-                        Delete
-                    </button>
-                </td>
-            </tr>
-            `;
-                });
-            }
-
-            async function createUser() {
-
-                const username =
-                    document.getElementById(
-                        "username"
-                    ).value;
-
-                const password =
-                    document.getElementById(
-                        "password"
-                    ).value;
-
-                const role =
-                    document.getElementById(
-                        "role"
-                    ).value;
-
-                await authFetch(
-                    `${BASE_URL}/users`,
+            try {
+                const res = await fetch(
+                    `${BASE_URL}/login`,
                     {
                         method: "POST",
-
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
                         body: JSON.stringify({
                             username,
-                            password,
-                            role
+                            password
                         })
                     }
                 );
 
-                loadUsers();
-            }
-
-            async function toggleUser(id) {
-
-                await authFetch(
-                    `${BASE_URL}/users/${id}/toggle`,
-                    {
-                        method: "PUT"
-                    }
-                );
-
-                loadUsers();
-            }
-
-            async function deleteUser(id) {
-
-                await authFetch(
-                    `${BASE_URL}/users/${id}`,
-                    {
-                        method: "DELETE"
-                    }
-                );
-
-                loadUsers();
-            }
-
-            async function loadItems() {
-
-                const res =
-                    await authFetch(
-                        `${BASE_URL}/admin/items`
+                const data = await res.json();
+                // added 12 may 2026
+                if (data.access_token) {
+                    localStorage.setItem(
+                        "role",
+                        data.role
                     );
 
-                const items =
-                    await res.json();
-
-                items.sort((a, b) => a.id - b.id);
-
-                const table =
-                    document.getElementById(
-                        "itemsTable"
+                    localStorage.setItem(
+                        "token",
+                        data.access_token
                     );
 
-                table.innerHTML = `
-        <tr>
-            <th>ID</th>
-            <th>Description</th>
-            <th>Unit</th>
-            <th>Price</th>
-            <th>Actions</th>
-        </tr>
-            `;
-
-                items.forEach(item => {
-
-                    table.innerHTML += `
-            <tr>
-                <td>${item.id}</td>
-                <td>${item.description}</td>
-                <td>${item.unit}</td>
-                <td>${item.price}</td>
-                <td>
-                    <button onclick="deleteItem(${item.id})">
-                        Delete
-                    </button>
-                </td>
-            </tr>
-            `;
-                });
-            }
-
-            async function createItem() {
-
-                const description =
-                    document.getElementById(
-                        "itemDescription"
-                    ).value;
-
-                const unit =
-                    document.getElementById(
-                        "itemUnit"
-                    ).value;
-
-                const price =
-                    parseFloat(
-                        document.getElementById(
-                            "itemPrice"
-                        ).value
+                    // 🔥 ADDED SESSION EXPIRY
+                    localStorage.setItem(
+                        "token_expiry",
+                        Date.now() + (data.expires_in * 1000)
                     );
 
-                await authFetch(
-                    `${BASE_URL}/admin/items`,
-                    {
-                        method: "POST",
-
-                        body: JSON.stringify({
-                            description,
-                            unit,
-                            price
-                        })
-                    }
-                );
-
-                loadItems();
-            }
-
-            async function loadSettings() {
-
-                const res =
-                    await authFetch(
-                        `${BASE_URL}/admin/settings`
-                    );
-
-                const data =
-                    await res.json();
-
-                document.getElementById(
-                    "company_name"
-                ).value =
-                    data.company_name || "";
-
-                document.getElementById(
-                    "address1"
-                ).value =
-                    data.address1 || "";
-
-                document.getElementById(
-                    "address2"
-                ).value =
-                    data.address2 || "";
-
-                document.getElementById(
-                    "phone"
-                ).value =
-                    data.phone || "";
-
-                document.getElementById(
-                    "bank_name"
-                ).value =
-                    data.bank_name || "";
-
-                document.getElementById(
-                    "account_holder"
-                ).value =
-                    data.account_holder || "";
-
-                document.getElementById(
-                    "account_number"
-                ).value =
-                    data.account_number || "";
-
-                document.getElementById(
-                    "ifsc"
-                ).value =
-                    data.ifsc || "";
-
-                document.getElementById(
-                    "footer_note"
-                ).value =
-                    data.footer_note || "";
-
-                document.getElementById(
-                    "show_bank_details"
-                ).checked =
-                    data.show_bank_details;
-
-                document.getElementById(
-                    "show_footer_note"
-                ).checked =
-                    data.show_footer_note;
-            }
+                    window.location.href = "dashboard.html";
 
 
-            async function saveSettings() {
-
-                const payload = {
-
-                    company_name:
-                        document.getElementById(
-                            "company_name"
-                        ).value,
-
-                    address1:
-                        document.getElementById(
-                            "address1"
-                        ).value,
-
-                    address2:
-                        document.getElementById(
-                            "address2"
-                        ).value,
-
-                    phone:
-                        document.getElementById(
-                            "phone"
-                        ).value,
-
-                    bank_name:
-                        document.getElementById(
-                            "bank_name"
-                        ).value,
-
-                    account_holder:
-                        document.getElementById(
-                            "account_holder"
-                        ).value,
-
-                    account_number:
-                        document.getElementById(
-                            "account_number"
-                        ).value,
-
-                    ifsc:
-                        document.getElementById(
-                            "ifsc"
-                        ).value,
-
-                    footer_note:
-                        document.getElementById(
-                            "footer_note"
-                        ).value,
-
-                    show_bank_details:
-                        document.getElementById(
-                            "show_bank_details"
-                        ).checked,
-
-                    show_footer_note:
-                        document.getElementById(
-                            "show_footer_note"
-                        ).checked
-                };
-
-                await authFetch(
-                    `${BASE_URL}/admin/settings`,
-                    {
-
-                        method: "PUT",
-
-                        body: JSON.stringify(
-                            payload
-                        )
-                    }
-                );
-
-                alert(
-                    "Settings saved successfully!"
-                );
-            }
-
-            async function deleteItem(id) {
-
-                await authFetch(
-                    `${BASE_URL}/admin/items/${id}`,
-                    {
-                        method: "DELETE"
-                    }
-                );
-
-                loadItems();
-            }
-
-            window.onload = async () => {
-
-                const role =
-                    localStorage.getItem("role");
-
-                if (role !== "admin") {
-
-                    alert("Admin access required");
-
-                    window.location.href =
-                        "index.html";
-
-                    return;
+                } else {
+                    error.innerText =
+                        "Invalid username or password";
                 }
 
-                showLoader();
+            } catch (err) {
+                console.error(err);
+                error.innerText =
+                    "Server connection failed";
 
-                try {
-
-                    await Promise.all([
-
-                        loadSettings(),
-                        loadUsers(),
-                        loadItems()
-
-                    ]);
-
-                } catch (err) {
-
-                    console.error(err);
-
-                    alert(
-                        "Failed to load admin panel"
-                    );
-
-                } finally {
-
-                    hideLoader();
-                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "Login";
             }
+        }
+    </script>
 
-            function showLoader() {
-
-                document.getElementById(
-                    "pageLoader"
-                ).style.display = "flex";
-            }
-
-            function hideLoader() {
-
-                document.getElementById(
-                    "pageLoader"
-                ).style.display = "none";
-            }
-
-        </script>
-
+    <!-- DEVELOPER CREDIT -->
+    <div class="developer-credit">
+        Developed by
+        <a href="https://ripudaman.netlify.app" target="_blank">
+            Ripudaman
+        </a>
+    </div>
 </body>
 
 </html>
