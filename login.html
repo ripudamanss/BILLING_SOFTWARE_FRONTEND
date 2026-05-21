@@ -15,19 +15,6 @@
             box-sizing: border-box;
         }
 
-        /* body {
-            font-family: 'Poppins', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            position: relative;
-            overflow-x: hidden;
-            background:
-                url('https://images.pexels.com/photos/10387112/pexels-photo-10387112.jpeg') no-repeat center center/cover;
-        } */
-
         body {
             font-family: 'Poppins', sans-serif;
             min-height: 100vh;
@@ -43,17 +30,19 @@
         /* PARALLAX BACKGROUND */
         .parallax-bg {
             position: fixed;
-            inset: 0;
-            z-index: -3;
-            overflow: hidden;
-            background-color: hsla(200, 40%, 30%, .4);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+
+            background-color: #0f172a;
 
             background-image:
-                url('https://78.media.tumblr.com/cae86e76225a25b17332dfc9cf8b1121/tumblr_p7n8kqHMuD1uy4lhuo1_540.png'),
-                url('https://78.media.tumblr.com/66445d34fe560351d474af69ef3f2fb0/tumblr_p7n908E1Jb1uy4lhuo1_1280.png'),
-                url('https://78.media.tumblr.com/8cd0a12b7d9d5ba2c7d26f42c25de99f/tumblr_p7n8kqHMuD1uy4lhuo2_1280.png'),
-                url('https://78.media.tumblr.com/5ecb41b654f4e8878f59445b948ede50/tumblr_p7n8on19cV1uy4lhuo1_1280.png'),
-                url('https://78.media.tumblr.com/28bd9a2522fbf8981d680317ccbf4282/tumblr_p7n8kqHMuD1uy4lhuo3_1280.png');
+                url('./public/img1.png'),
+                url('./public/img2.png'),
+                url('./public/img3.png'),
+                url('./public/img4.png'),
+                url('./public/img5.png');
 
             background-repeat: repeat-x;
 
@@ -70,44 +59,29 @@
                 500px 200px,
                 1000px,
                 400px 260px;
-                animation: parallaxMove 60s linear infinite;
-            }
 
-            /* DARK OVERLAY */
-            .parallax-overlay {
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.35);
-                backdrop-filter: blur(2px);
-                z-index: -2;
-            }
+            animation: parallaxMove 25s linear infinite;
 
-            @keyframes parallaxMove {
-                100% {
-                    background-position:
+            z-index: 0;
+        }
+
+        /* DARK OVERLAY */
+        .parallax-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 1;
+        }
+
+        @keyframes parallaxMove {
+            100% {
+                background-position:
                     -5000px 20%,
                     -800px 100%,
                     500px 50%,
                     1000px 100%,
                     400px 0;
             }
-            }
-        
-        /* DARK OVERLAY */
-        body::before {
-
-            html,
-            body {
-                width: 100%;
-                min-height: 100%;
-            }
-
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.28);
-            backdrop-filter: blur(2px);
         }
 
         /* LOGIN CARD */
@@ -144,9 +118,12 @@
         }
 
         @keyframes floatCard {
-            0%,100% {
+
+            0%,
+            100% {
                 transform: translateY(0px);
             }
+
             50% {
                 transform: translateY(-8px);
             }
@@ -320,7 +297,7 @@
             bottom: 18px;
             width: 100%;
             text-align: center;
-            color: rgba(255,255,255,0.8);
+            color: rgba(255, 255, 255, 0.8);
             font-size: 14px;
             letter-spacing: 0.5px;
             z-index: 999;
@@ -335,7 +312,7 @@
 
         .developer-credit a:hover {
             color: #7CFFB2;
-            text-shadow: 0 0 8px rgba(124,255,178,0.8);
+            text-shadow: 0 0 8px rgba(124, 255, 178, 0.8);
         }
     </style>
     <script>
@@ -346,6 +323,9 @@
 </head>
 
 <body>
+
+    <div class="parallax-bg"></div>
+    <div class="parallax-overlay"></div>
 
     <div class="login-container">
         <h1>Login</h1>
@@ -392,7 +372,7 @@
     <script>
         const BASE_URL = "https://billing-software-backend-04do.onrender.com";
         // const BASE_URL = "https://supreme-space-spoon-qx9wr7g66ppfxvg7-10000.app.github.dev";
-        
+
         async function login() {
             const username =
                 document.getElementById(
@@ -478,7 +458,7 @@
 
     <!-- DEVELOPER CREDIT -->
     <div class="developer-credit">
-        Developed by 
+        Developed by
         <a href="https://ripudaman.netlify.app" target="_blank">
             Ripudaman
         </a>
