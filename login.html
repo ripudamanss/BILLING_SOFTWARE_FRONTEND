@@ -373,28 +373,28 @@
         const BASE_URL = "https://billing-software-backend-04do.onrender.com";
         // const BASE_URL = "https://supreme-space-spoon-qx9wr7g66ppfxvg7-10000.app.github.dev";
 
+        // Added enter key to login button to easy 
+        document.addEventListener("keydown", function(event){
+            if(event.key === "Enter"){
+                event.preventDefault();
+                document.getElementById("loginBtn").click();
+            }
+        });
+
         async function login() {
-            const username =
-                document.getElementById(
-                    "username"
-                ).value;
-
-            const password =
-                document.getElementById(
-                    "password"
-                ).value;
-
-            const btn =
-                document.getElementById(
-                    "loginBtn"
-                );
-
-            const error =
-                document.getElementById(
-                    "errorMsg"
-                );
-
+            const username =document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const btn = document.getElementById("loginBtn");
+            const error = document.getElementById("errorMsg");
             error.innerText = "";
+
+            // Feature added to check and prevent unauthorized request to backend with empty fields
+            if(!username || !password){
+                alert("Username or Password Not Entered!");
+                error.innerText("Username and password required!");
+                return;
+            }
+
             // BUTTON LOADING
             btn.disabled = true;
             btn.innerHTML = `
@@ -440,14 +440,12 @@
 
 
                 } else {
-                    error.innerText =
-                        "Invalid username or password";
+                    error.innerText = "Invalid username or password";
                 }
 
             } catch (err) {
                 console.error(err);
-                error.innerText =
-                    "Server connection failed";
+                error.innerText = "Server connection failed";
 
             } finally {
                 btn.disabled = false;
