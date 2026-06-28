@@ -247,87 +247,52 @@
         No matching bills found
 
     </div>
-
     <script>
         //  added 12 may 2026 - 
         checkSession();
 
         const BASE_URL = "https://billing-software-backend-04do.onrender.com";
-        // const BASE_URL = "https://supreme-space-spoon-qx9wr7g66ppfxvg7-10000.app.github.dev";
         
         // Added 12 may 2026
         // 🔥 SESSION CHECK
         function checkSession() {
+            const token = localStorage.getItem("token");
+            const expiry = localStorage.getItem("token_expiry");
 
-            const token =
-                localStorage.getItem("token");
-
-            const expiry =
-                localStorage.getItem("token_expiry");
-
-            // No token
             if (!token || !expiry) {
-
                 logoutUser();
                 return;
             }
 
-            // Expired
             if (Date.now() > parseInt(expiry)) {
-
-                alert(
-                    "Session expired. Please login again."
-                );
-
+                alert("Session expired. Please login again.");
                 logoutUser();
             }
         }
 
         // 🔥 CENTRAL LOGOUT
         function logoutUser() {
-
             localStorage.removeItem("token");
             localStorage.removeItem("role");
-            localStorage.removeItem(
-                "token_expiry"
-            );
-
-            localStorage.removeItem(
-                "editBillId"
-            );
-
-            window.location.href =
-                "login.html";
+            localStorage.removeItem("token_expiry");
+            localStorage.removeItem("editBillId");
+            window.location.href = "login.html";
         }
 
         // Feature added 12 may 26
         // 🔥 AUTH FETCH WRAPPER
-        async function authFetch(
-            url,
-            options = {}
-        ) {
-
-            const token =
-                localStorage.getItem("token");
-
+        async function authFetch(url, options = {}) {
+            const token = localStorage.getItem("token");
             options.headers = {
                 ...(options.headers || {}),
-                "Authorization":
-                    "Bearer " + token
+                "Authorization": "Bearer " + token
             };
 
-            const res =
-                await fetch(url, options);
+            const res = await fetch(url, options);
 
-            // 🔥 SESSION EXPIRED
             if (res.status === 401) {
-
-                alert(
-                    "Session expired. Login again."
-                );
-
+                alert("Session expired. Login again.");
                 logoutUser();
-
                 throw new Error("Unauthorized");
             }
 
@@ -336,178 +301,94 @@
 
         async function loadBills() {
             const skeletonLoader = document.getElementById("skeletonLoader");
-            const table =
-                document.getElementById("table");
-            const emptyMsg =
-                document.getElementById("emptyMsg");
+            const table = document.getElementById("table");
+            const emptyMsg = document.getElementById("emptyMsg");
 
-            // 🔥 Start loading state
             table.style.display = "none";
             emptyMsg.innerText = "";
 
             try {
-                const res = await authFetch( // 12 may 26 added authFetch instead of fetch
-                    `${BASE_URL}/bills`,
-                    {
-                        headers: {
-                            "Authorization":
-                                "Bearer " +
-                                localStorage.getItem("token")
-                        }
+                const res = await authFetch(`${BASE_URL}/bills`, {
+                    headers: {
+                        "Authorization": "Bearer " + localStorage.getItem("token")
                     }
-                );
+                });
 
                 const data = await res.json();
                 console.log("BILLS RESPONSE:", data);
 
-                // 🔥 Handle backend failure
-
                 if (!res.ok) {
-                    loadingBox.innerHTML = `
-                <p style="color:red; font-weight:bold;">
-                    Failed to load bills
-                </p>
-            `;
-
+                    skeletonLoader.innerHTML = `
+                        <p style="color:red; font-weight:bold; text-align:center;">Failed to load bills</p>
+                    `;
                     return;
                 }
-                // 🔥 Reset table
 
                 table.innerHTML = `
-            <tr>
-                <th>ID</th>
-                <th>Customer</th>
-                <th>Total (₹)</th>
-                <th>Actions</th>
-            </tr>
-        `;
-
-                // 🔥 Empty database case
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Total (₹)</th>
+                        <th>Actions</th>
+                    </tr>
+                `;
 
                 if (data.length === 0) {
-                    // loadingBox.style.display = "none";
                     skeletonLoader.style.display = "none";
-                    emptyMsg.innerText =
-                        "No bills found";
+                    emptyMsg.innerText = "No bills found";
                     return;
                 }
 
-                // 🔥 Show table only after data arrives
-                // loadingBox.style.display = "none";
                 skeletonLoader.style.display = "none";
                 table.style.display = "table";
 
-                // 🔥 Insert rows
                 data.forEach(bill => {
                     const row = table.insertRow();
                     row.innerHTML = `
-                <td>${bill.id}</td>
-                <td>${bill.customer}</td>
-                <td>
-                    ${bill.total
-                            ? bill.total.toFixed(2)
-                            : "0.00"}
-                </td>
-                <td>
-                    <button
-                        class="pdf-btn"
-                        onclick="viewPDF(${bill.id})">
-                        View
-                    </button>
-
-                    <button
-                        class="pdf-btn"
-                        onclick="downloadPDF(${bill.id})">
-                        Download
-                    </button>
-                    <button
-                        class="edit-btn"
-                        onclick="editBill(${bill.id})">
-                        Edit
-                    </button>
-
-                    <button
-                        class="delete-btn"
-                        onclick="deleteBill(${bill.id})">
-                        Delete
-                    </button>
-                </td>
-            `;
+                        <td>${bill.id}</td>
+                        <td>${bill.customer}</td>
+                        <td>${bill.total ? bill.total.toFixed(2) : "0.00"}</td>
+                        <td>
+                            <button class="pdf-btn" onclick="viewPDF(${bill.id})">View</button>
+                            <button class="pdf-btn" onclick="downloadPDF(${bill.id})">Download</button>
+                            <button class="edit-btn" onclick="editBill(${bill.id})">Edit</button>
+                            <button class="delete-btn" onclick="deleteBill(${bill.id})">Delete</button>
+                        </td>
+                    `;
                 });
-
             } catch (err) {
                 console.error(err);
                 skeletonLoader.innerHTML = `
-                <p style="
-                    color:red;
-                    text-align:center;
-                    font-weight:bold;
-                ">
-                    Server connection failed
-                </p>
-            `;
+                    <p style="color:red; text-align:center; font-weight:bold;">Server connection failed</p>
+                `;
             }
         }
 
-        // filterbill
         function filterBills() {
-
-            const input =
-                document.getElementById("searchInput");
-
-            const filter =
-                input.value.toLowerCase();
-
-            const table =
-                document.getElementById("table");
-
-            const rows =
-                table.getElementsByTagName("tr");
-
-            const searchEmptyMsg =
-                document.getElementById(
-                    "searchEmptyMsg"
-                );
-
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById("table");
+            const rows = table.getElementsByTagName("tr");
+            const searchEmptyMsg = document.getElementById("searchEmptyMsg");
             let visibleCount = 0;
 
-            // Skip header row
-
             for (let i = 1; i < rows.length; i++) {
-
-                const customerCell =
-                    rows[i].cells[1];
-
+                const customerCell = rows[i].cells[1];
                 if (!customerCell) continue;
 
-                const customerText =
-                    customerCell.textContent
-                    || customerCell.innerText;
+                const customerText = customerCell.textContent || customerCell.innerText;
 
-                if (
-                    customerText
-                        .toLowerCase()
-                        .includes(filter)
-                ) {
-
+                if (customerText.toLowerCase().includes(filter)) {
                     rows[i].style.display = "";
-
                     visibleCount++;
-
                 } else {
-
                     rows[i].style.display = "none";
                 }
             }
 
-            // 🔥 No results handling
-
             if (visibleCount === 0) {
-
                 searchEmptyMsg.style.display = "block";
-
             } else {
-
                 searchEmptyMsg.style.display = "none";
             }
         }
@@ -549,13 +430,17 @@
         async function viewPDF(id) {
             try {
                 showActionLoader("Opening PDF...");
-                const res = await authFetch(`${BASE_URL}/bills/${id}/pdf`, { // 12 may 26 added authFetch instead of fetch
+                const res = await authFetch(`${BASE_URL}/bills/${id}/pdf`, {
                     headers: {
                         "Authorization": "Bearer " + localStorage.getItem("token")
                     }
                 });
 
                 const data = await res.json();
+                if (!res.ok) {
+                    alert(data.detail || "Failed to load PDF");
+                    return;
+                }
 
                 window.open(data.pdf_url, "_blank");
             } catch (err) {
@@ -565,24 +450,34 @@
                 hideActionLoader();
             }
         }
-                
 
-        // 🔥 ADDED: download function
         async function downloadPDF(id) {
-            const res = await authFetch(`${BASE_URL}/bills/${id}/pdf`, { // 12 may 26 added authFetch instead of fetch
-                headers: {
-                    "Authorization": "Bearer " + localStorage.getItem("token")
+            showActionLoader("Preparing download...");
+            try {
+                const res = await authFetch(`${BASE_URL}/bills/${id}/pdf`, {
+                    headers: {
+                        "Authorization": "Bearer " + localStorage.getItem("token")
+                    }
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.detail || "Failed to generate PDF");
+                    return;
                 }
-            });
 
-            const data = await res.json();
-
-            const link = document.createElement("a");
-            link.href = data.pdf_url;
-            link.download = `bill_${id}.pdf`;
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
+                const link = document.createElement("a");
+                link.href = data.pdf_url;
+                link.download = `bill_${id}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            } catch (err) {
+                console.error(err);
+                alert("Download failed. Please try again.");
+            } finally {
+                hideActionLoader();
+            }
         }
 
         function editBill(id) {
@@ -594,19 +489,31 @@
             }, 80);
         }
 
-
         async function deleteBill(id) {
             if (!confirm("Delete this bill?")) return;
 
-            await authFetch(`${BASE_URL}/bills/${id}`, { // 12 may 26 added authFetch instead of fetch
-                method: "DELETE",
-                headers: {
-                    "Authorization": "Bearer " + localStorage.getItem("token")
-                }
-            });
+            showActionLoader("Deleting bill...");
+            try {
+                const res = await authFetch(`${BASE_URL}/bills/${id}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": "Bearer " + localStorage.getItem("token")
+                    }
+                });
 
-            // 🔥 ADDED: smooth reload
-            loadBills();
+                if (!res.ok) {
+                    const data = await res.json();
+                    alert(data.detail || "Delete failed");
+                    return;
+                }
+
+                await loadBills();
+            } catch (err) {
+                console.error(err);
+                alert("Failed to delete bill");
+            } finally {
+                hideActionLoader();
+            }
         }
 
         loadBills();

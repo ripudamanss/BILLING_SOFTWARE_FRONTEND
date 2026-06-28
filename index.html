@@ -382,151 +382,83 @@
 
     <script>
         let customersData = [];
-        async function loadCustomers() {
-            const res = await authFetch( // added AuthFetch 12 may 2026 - instead of fetch
-                `${BASE_URL}/customers`
-            );
-            customersData = await res.json();
-            const datalist =
-                document.getElementById(
-                    "customerSuggestions"
-                );
-            datalist.innerHTML = "";
-            customersData.forEach(customer => {
-                datalist.innerHTML += `
-            <option value="${customer.customer_name}">
-        `;
-            });
-        }
-
-        // Feature added 12 may 26
-        checkSession();
-
-        const BASE_URL = "https://billing-software-backend-04do.onrender.com"; //use /login for login endpoint
-        // const BASE_URL = "https://supreme-space-spoon-qx9wr7g66ppfxvg7-10000.app.github.dev"; //use /login for login endpoint
+        const BASE_URL = "https://billing-software-backend-04do.onrender.com";
         let editBillId = null;
         let itemsData = [];
         let isSubmitting = false;
 
+        async function loadCustomers() {
+            const res = await authFetch(`${BASE_URL}/customers`);
+            customersData = await res.json();
+            const datalist = document.getElementById("customerSuggestions");
+            datalist.innerHTML = "";
+            customersData.forEach(customer => {
+                datalist.innerHTML += `<option value="${customer.customer_name}">`;
+            });
+        }
+
+        checkSession();
+
         async function loadItems() {
             try {
-
-                const res = await fetch(
-                    `${BASE_URL}/items`,
-                    {
-                        headers: {
-                            "Authorization":
-                                "Bearer " +
-                                localStorage.getItem("token")
-                        }
+                const res = await fetch(`${BASE_URL}/items`, {
+                    headers: {
+                        "Authorization": "Bearer " + localStorage.getItem("token")
                     }
-                );
+                });
 
                 itemsData = await res.json();
-
-                const datalist =
-                    document.getElementById(
-                        "itemSuggestions"
-                    );
-
+                const datalist = document.getElementById("itemSuggestions");
                 datalist.innerHTML = "";
 
                 itemsData.forEach(item => {
-
-                    const option =
-                        document.createElement(
-                            "option"
-                        );
-
-                    option.value =
-                        item.description;
-
+                    const option = document.createElement("option");
+                    option.value = item.description;
                     datalist.appendChild(option);
                 });
-
             } catch (err) {
-
-                console.error(
-                    "Items load error:",
-                    err
-                );
+                console.error("Items load error:", err);
             }
         }
 
-        // Feature added 12 may 26
         // 🔥 SESSION CHECK
         function checkSession() {
+            const token = localStorage.getItem("token");
+            const expiry = localStorage.getItem("token_expiry");
 
-            const token =
-                localStorage.getItem("token");
-
-            const expiry =
-                localStorage.getItem("token_expiry");
-
-            // No token
             if (!token || !expiry) {
-
                 logoutUser();
                 return;
             }
 
-            // Expired
             if (Date.now() > parseInt(expiry)) {
-
-                alert(
-                    "Session expired. Please login again."
-                );
-
+                alert("Session expired. Please login again.");
                 logoutUser();
             }
         }
 
         // 🔥 CENTRAL LOGOUT
         function logoutUser() {
-
             localStorage.removeItem("token");
             localStorage.removeItem("role");
-
-            localStorage.removeItem(
-                "token_expiry"
-            );
-
-            localStorage.removeItem(
-                "editBillId"
-            );
-
-            window.location.href =
-                "login.html";
+            localStorage.removeItem("token_expiry");
+            localStorage.removeItem("editBillId");
+            window.location.href = "login.html";
         }
 
-        // Feature added 12 may 26
         // 🔥 AUTH FETCH WRAPPER
-        async function authFetch(
-            url,
-            options = {}
-        ) {
-
-            const token =
-                localStorage.getItem("token");
-
+        async function authFetch(url, options = {}) {
+            const token = localStorage.getItem("token");
             options.headers = {
                 ...(options.headers || {}),
-                "Authorization":
-                    "Bearer " + token
+                "Authorization": "Bearer " + token
             };
 
-            const res =
-                await fetch(url, options);
+            const res = await fetch(url, options);
 
-            // 🔥 SESSION EXPIRED
             if (res.status === 401) {
-
-                alert(
-                    "Session expired. Login again."
-                );
-
+                alert("Session expired. Login again.");
                 logoutUser();
-
                 throw new Error("Unauthorized");
             }
 
@@ -538,112 +470,63 @@
             div.className = "item-row";
 
             div.innerHTML = `
-        <input placeholder="Description" class="desc" list="itemSuggestions" autocomplete="off" value="${itemData?.description || ""}">
-        <input placeholder="Note" class="note" value="${itemData?.note || ""}">
-        <input type="number" step="any" placeholder="Qty" class="qty" value="${itemData?.qty || ""}">
+                <input placeholder="Description" class="desc" list="itemSuggestions" autocomplete="off" value="${itemData?.description || ""}">
+                <input placeholder="Note" class="note" value="${itemData?.note || ""}">
+                <input type="number" step="any" placeholder="Qty" class="qty" value="${itemData?.qty || ""}">
 
-        <div class="unit-wrapper">
-            <select class="unit-select" onchange="handleUnitChange(this)">
-                <option value="">Unit</option>
-                <option value="Truck">Truck</option>
-                <option value="Sqft">Sqft</option>
-                <option value="Hr">Hr</option>
-                <option value="Kg">Kg</option>
-                <option value="Nos">Nos</option>
-                <option value="custom">Other...</option>
-            </select>
+                <div class="unit-wrapper">
+                    <select class="unit-select" onchange="handleUnitChange(this)">
+                        <option value="">Unit</option>
+                        <option value="Truck">Truck</option>
+                        <option value="Sqft">Sqft</option>
+                        <option value="Hr">Hr</option>
+                        <option value="Kg">Kg</option>
+                        <option value="Nos">Nos</option>
+                        <option value="custom">Other...</option>
+                    </select>
 
-            <input placeholder="Custom Unit" class="unit-input" style="display:none;">
-            <input type="hidden" class="unit" value="${itemData?.unit || ""}">
-        </div>
+                    <input placeholder="Custom Unit" class="unit-input" style="display:none;">
+                    <input type="hidden" class="unit" value="${itemData?.unit || ""}">
+                </div>
 
-        <input type="number" step="any" placeholder="Price" class="price" value="${itemData?.price || ""}">
-        <span class="row-total">₹ 0</span>
+                <input type="number" step="any" placeholder="Price" class="price" value="${itemData?.price || ""}">
+                <span class="row-total">₹ 0</span>
 
-        <button onclick="this.parentElement.remove(); calculateTotals();">❌</button>
-    `;
+                <button onclick="this.parentElement.remove(); calculateTotals();">❌</button>
+            `;
 
             document.getElementById("items").appendChild(div);
-            const descInput =
-                div.querySelector(".desc");
 
-            const priceInput =
-                div.querySelector(".price");
+            const descInput = div.querySelector(".desc");
+            const priceInput = div.querySelector(".price");
+            const hiddenUnit = div.querySelector(".unit");
+            const unitSelect = div.querySelector(".unit-select");
+            const customUnit = div.querySelector(".unit-input");
 
-            const hiddenUnit =
-                div.querySelector(".unit");
+            descInput.addEventListener("change", () => {
+                const matchedItem = itemsData.find(
+                    item => item.description.toLowerCase().trim() === descInput.value.toLowerCase().trim()
+                );
 
-            const unitSelect =
-                div.querySelector(".unit-select");
+                if (!matchedItem) return;
 
-            const customUnit =
-                div.querySelector(".unit-input");
+                priceInput.value = matchedItem.price;
 
-            descInput.addEventListener(
-                "change",
-                () => {
+                const standardUnits = ["Truck", "Sqft", "Hr", "Kg", "Nos", "Hour"];
 
-                    const matchedItem =
-                        itemsData.find(
-                            item =>
-                                item.description
-                                    .toLowerCase()
-                                    .trim()
-                                ===
-                                descInput.value
-                                    .toLowerCase()
-                                    .trim()
-                        );
-
-                    if (!matchedItem) return;
-
-                    // AUTO PRICE
-                    priceInput.value =
-                        matchedItem.price;
-
-                    // AUTO UNIT
-                    const standardUnits = [
-                        "Truck",
-                        "Sqft",
-                        "Hr",
-                        "Kg",
-                        "Nos",
-                        "Hour"
-                    ];
-
-                    if (
-                        standardUnits.includes(
-                            matchedItem.unit
-                        )
-                    ) {
-
-                        unitSelect.value =
-                            matchedItem.unit;
-
-                        hiddenUnit.value =
-                            matchedItem.unit;
-
-                        customUnit.style.display =
-                            "none";
-
-                    } else {
-
-                        unitSelect.value =
-                            "custom";
-
-                        customUnit.style.display =
-                            "inline-block";
-
-                        customUnit.value =
-                            matchedItem.unit;
-
-                        hiddenUnit.value =
-                            matchedItem.unit;
-                    }
-
-                    calculateTotals();
+                if (standardUnits.includes(matchedItem.unit)) {
+                    unitSelect.value = matchedItem.unit;
+                    hiddenUnit.value = matchedItem.unit;
+                    customUnit.style.display = "none";
+                } else {
+                    unitSelect.value = "custom";
+                    customUnit.style.display = "inline-block";
+                    customUnit.value = matchedItem.unit;
+                    hiddenUnit.value = matchedItem.unit;
                 }
-            );
+
+                calculateTotals();
+            });
 
             div.querySelectorAll(".qty, .price").forEach(input => {
                 input.addEventListener("input", calculateTotals);
@@ -694,10 +577,8 @@
             document.querySelectorAll(".item-row").forEach(row => {
                 const qty = parseFloat(row.querySelector(".qty").value) || 0;
                 const price = parseFloat(row.querySelector(".price").value) || 0;
-
                 const rowTotal = qty * price;
                 row.querySelector(".row-total").innerText = "₹ " + rowTotal.toFixed(2);
-
                 total += rowTotal;
             });
 
@@ -705,14 +586,14 @@
         }
 
         async function loadBill(id) {
-            const res = await authFetch(`${BASE_URL}/bills/${id}`, {  // Added 12 may 26 only authFetch instead of fetch
+            const res = await authFetch(`${BASE_URL}/bills/${id}`, {
                 headers: {
                     "Authorization": "Bearer " + localStorage.getItem("token")
                 }
             });
             const data = await res.json();
             console.log("UPDATE RESPONSE:", data);
-            // New added console log to check response structure
+
             if (!res.ok) {
                 showError(data.detail || "Update failed");
                 return;
@@ -720,7 +601,6 @@
 
             editBillId = id;
             console.log("Editing bill:", id);
-            // 🔥 Set button text to indicate update mode
             document.getElementById("submitBtn").innerText = "Update Bill";
             document.getElementById("customer").value = data.bill.customer;
             document.getElementById("customeradd1").value = data.bill.customeradd1 || "";
@@ -733,83 +613,35 @@
             setTimeout(() => calculateTotals(), 100);
         }
 
-
         async function submitBill() {
-
             if (isSubmitting) return;
-
             isSubmitting = true;
 
-            showLoading(
-                editBillId
-                    ? "Updating Bill..."
-                    : "Generating Bill..."
-            );
+            showLoading(editBillId ? "Updating Bill..." : "Generating Bill...");
 
             try {
-
                 document.getElementById("error").innerText = "";
 
-                const customer =
-                    document.getElementById("customer")
-                        .value.trim();
-
-                const customeradd1 =
-                    document.getElementById("customeradd1")
-                        .value;
-
-                const customeradd2 =
-                    document.getElementById("customeradd2")
-                        .value;
-
-                const date =
-                    document.getElementById("date")
-                        .value;
-
-                // 🔥 Validation
+                const customer = document.getElementById("customer").value.trim();
+                const customeradd1 = document.getElementById("customeradd1").value;
+                const customeradd2 = document.getElementById("customeradd2").value;
+                const date = document.getElementById("date").value;
 
                 if (!customer || !date) {
-
-                    showError(
-                        "Customer and date required"
-                    );
-
+                    showError("Customer and date required");
                     return;
                 }
 
                 let items = [];
 
                 for (let row of document.querySelectorAll(".item-row")) {
+                    const desc = row.querySelector(".desc").value.trim();
+                    const qty = parseFloat(row.querySelector(".qty").value);
+                    const price = parseFloat(row.querySelector(".price").value);
+                    const unit = row.querySelector(".unit").value.trim();
 
-                    const desc =
-                        row.querySelector(".desc")
-                            .value.trim();
-
-                    const qty =
-                        parseFloat(
-                            row.querySelector(".qty").value
-                        );
-
-                    const price =
-                        parseFloat(
-                            row.querySelector(".price").value
-                        );
-
-                    const unit =
-                        row.querySelector(".unit")
-                            .value.trim();
-
-                    if (
-                        !desc ||
-                        isNaN(qty) ||
-                        isNaN(price) ||
-                        !unit
-                    ) {
-
-                        showError(
-                            "Fill all item fields correctly"
-                        );
-
+                    if (!desc || isNaN(qty) || isNaN(price) || !unit) {
+                        showError("Fill all item fields correctly");
                         return;
                     }
 
@@ -822,29 +654,16 @@
                     });
                 }
 
-                // 🔥 API URL
+                const url = editBillId ? `${BASE_URL}/bills/${editBillId}` : `${BASE_URL}/bills`;
+                const method = editBillId ? "PUT" : "POST";
 
-                const url = editBillId
-                    ? `${BASE_URL}/bills/${editBillId}`
-                    : `${BASE_URL}/bills`;
-
-                const method =
-                    editBillId ? "PUT" : "POST";
-
-                // 🔥 Save Bill
-
-                const res = await authFetch(url, { // Added 12 may 26 authFetch in fetch first 
-
+                const res = await authFetch(url, {
                     method,
-
                     headers: {
                         "Content-Type": "application/json",
                         "x-api-key": "mysecretkey123",
-                        "Authorization":
-                            "Bearer " +
-                            localStorage.getItem("token")
+                        "Authorization": "Bearer " + localStorage.getItem("token")
                     },
-
                     body: JSON.stringify({
                         customer,
                         customeradd1,
@@ -855,163 +674,77 @@
                 });
 
                 const data = await res.json();
-
                 console.log("BILL RESPONSE:", data);
 
                 if (!res.ok) {
-
-                    showError(
-                        data.detail ||
-                        "Bill save failed"
-                    );
-
+                    showError(data.detail || "Bill save failed");
                     return;
                 }
 
-                const idToUse =
-                    editBillId || data.id;
+                const idToUse = editBillId || data.id;
 
-                // 🔥 Generate PDF
-
-                const finalRes = await fetch(
-                    `${BASE_URL}/bills/${idToUse}/pdf`,
-                    {
-                        headers: {
-                            "Authorization":
-                                "Bearer " +
-                                localStorage.getItem("token")
-                        }
+                const finalRes = await fetch(`${BASE_URL}/bills/${idToUse}/pdf`, {
+                    headers: {
+                        "Authorization": "Bearer " + localStorage.getItem("token")
                     }
-                );
+                });
 
-                const finalData =
-                    await finalRes.json();
-
-                console.log(
-                    "PDF RESPONSE:",
-                    finalData
-                );
+                const finalData = await finalRes.json();
+                console.log("PDF RESPONSE:", finalData);
 
                 if (!finalRes.ok) {
-
-                    showError(
-                        finalData.detail ||
-                        "PDF generation failed"
-                    );
-
+                    showError(finalData.detail || "PDF generation failed");
                     return;
                 }
 
-                // 🔥 Open PDF
+                window.open(finalData.pdf_url, "_blank");
 
-                window.open(
-                    finalData.pdf_url,
-                    "_blank"
-                );
+                showSuccess(editBillId ? "Bill updated successfully!" : "Bill generated successfully!");
 
-                // 🔥 Success Message
-
-                showSuccess(
-                    editBillId
-                        ? "Bill updated successfully!"
-                        : "Bill generated successfully!"
-                );
-
-                // 🔥 Download Button
-
-                const downloadDiv =
-                    document.getElementById(
-                        "downloadBox"
-                    );
-
+                const downloadDiv = document.getElementById("downloadBox");
                 downloadDiv.innerHTML = `
-            <a href="${finalData.pdf_url}" download>
-                <button style="background:#4CAF50;">
-                    Download PDF
-                </button>
-            </a>
-        `;
-
-                // 🔥 Reset edit mode
+                    <a href="${finalData.pdf_url}" download>
+                        <button style="background:#4CAF50;">Download PDF</button>
+                    </a>
+                `;
 
                 editBillId = null;
-
-                localStorage.removeItem(
-                    "editBillId"
-                );
-
-                document.getElementById(
-                    "submitBtn"
-                ).innerText = "Generate Bill";
-
+                localStorage.removeItem("editBillId");
+                document.getElementById("submitBtn").innerText = "Generate Bill";
             } catch (err) {
-
                 console.error(err);
-
-                showError(
-                    "Server connection failed"
-                );
-
+                showError("Server connection failed");
             } finally {
-
-                // 🔥 ALWAYS runs
-
                 hideLoading();
-                function showToast(message, type = "success") {
-
-                    const container =
-                        document.getElementById(
-                            "toastContainer"
-                        );
-
-                    const toast =
-                        document.createElement("div");
-
-                    toast.className =
-                        `toast ${type}`;
-
-                    // Icons
-
-                    let icon = "ℹ️";
-
-                    if (type === "success") {
-                        icon = "✅";
-                    }
-
-                    if (type === "error") {
-                        icon = "❌";
-                    }
-
-                    toast.innerHTML = `
-        <span>${icon}</span>
-        <span style="margin-left:8px;">
-            ${message}
-        </span>
-    `;
-
-                    container.appendChild(toast);
-
-                    // Remove after animation
-
-                    setTimeout(() => {
-
-                        toast.remove();
-
-                    }, 4000);
-                }
-
                 isSubmitting = false;
             }
         }
 
-        function showError(msg) {
-            // document.getElementById("error").innerText = msg;
-            const el = document.getElementById("error");
+        function showToast(message, type = "success") {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = `toast ${type}`;
 
+            let icon = "ℹ️";
+            if (type === "success") icon = "✅";
+            if (type === "error") icon = "❌";
+
+            toast.innerHTML = `
+                <span>${icon}</span>
+                <span style="margin-left:8px;">${message}</span>
+            `;
+
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 4000);
+        }
+
+        function showError(msg) {
+            const el = document.getElementById("error");
             el.style.color = "#ffb3b3";
             el.style.fontWeight = "bold";
             el.style.marginTop = "10px";
-
             el.innerText = msg;
         }
 
@@ -1020,7 +753,6 @@
             el.style.color = "#b6ffb6";
             el.style.fontWeight = "bold";
             el.style.marginTop = "10px";
-
             el.innerText = msg;
 
             setTimeout(() => {
@@ -1029,93 +761,68 @@
         }
 
         window.onload = async () => {
+            showLoading("Loading Form Data...");
+            try {
+                await loadCustomers();
 
-            loadCustomers();
-
-            document.getElementById("customer")
-                .addEventListener("input", function () {
-                    const selectedCustomer =
-                        customersData.find(
-                            customer =>
-                                customer.customer_name
-                                    .toLowerCase() ===
-                                this.value.toLowerCase()
+                document.getElementById("customer")
+                    .addEventListener("input", function () {
+                        const selectedCustomer = customersData.find(
+                            customer => customer.customer_name.toLowerCase() === this.value.toLowerCase()
                         );
-                    if (selectedCustomer) {
-                        document.getElementById(
-                            "customeradd1"
-                        ).value =
-                            selectedCustomer.address1 || "";
-                        document.getElementById(
-                            "customeradd2"
-                        ).value =
-                            selectedCustomer.address2 || "";
-                    }
-                });
+                        if (selectedCustomer) {
+                            document.getElementById("customeradd1").value = selectedCustomer.address1 || "";
+                            document.getElementById("customeradd2").value = selectedCustomer.address2 || "";
+                        }
+                    });
 
-            await loadItems();
-            const id =
-                localStorage.getItem("editBillId");
-            if (id) {
-                loadBill(id);
-            } else {
-                addItem();
+                await loadItems();
+                const id = localStorage.getItem("editBillId");
+                if (id) {
+                    await loadBill(id);
+                } else {
+                    addItem();
+                }
+            } catch (err) {
+                console.error(err);
+                showError("Server connection failed");
+            } finally {
+                hideLoading();
             }
         };
 
-        // added 12 may 2026
         function logout() {
             logoutUser();
         }
 
         function clearForm() {
-
             document.getElementById("customer").value = "";
             document.getElementById("customeradd1").value = "";
             document.getElementById("customeradd2").value = "";
             document.getElementById("date").value = "";
-
             document.getElementById("items").innerHTML = "";
 
             addItem();
-
             calculateTotals();
 
             document.getElementById("downloadBox").innerHTML = "";
-
             document.getElementById("error").innerText = "";
 
-            // 🔥 Clear edit mode
             editBillId = null;
-
             localStorage.removeItem("editBillId");
-
-            // 🔥 Reset button text
             document.getElementById("submitBtn").innerText = "Generate Bill";
-
         }
 
         function showLoading(text = "Processing...") {
-
-            document.getElementById("loadingOverlay")
-                .style.display = "flex";
-
-            document.getElementById("loadingText")
-                .innerText = text;
-
-            document.getElementById("submitBtn")
-                .disabled = true;
+            document.getElementById("loadingOverlay").style.display = "flex";
+            document.getElementById("loadingText").innerText = text;
+            document.getElementById("submitBtn").disabled = true;
         }
 
         function hideLoading() {
-
-            document.getElementById("loadingOverlay")
-                .style.display = "none";
-
-            document.getElementById("submitBtn")
-                .disabled = false;
+            document.getElementById("loadingOverlay").style.display = "none";
+            document.getElementById("submitBtn").disabled = false;
         }
-
     </script>
     <div id="loadingOverlay" class="loading-overlay">
 

@@ -502,11 +502,10 @@
             margin-bottom:20px;
         "></div>
 
-            <h2>Loading Admin Panel...</h2>
+            <h2 id="pageLoaderText">Loading Admin Panel...</h2>
 
         </div>
         <script>
-
             const role = localStorage.getItem("role");
 
             if (role !== "admin") {
@@ -514,437 +513,313 @@
                 window.location.href = "dashboard.html";
             }
             const BASE_URL = "https://billing-software-backend-04do.onrender.com";
-            // const BASE_URL = "https://supreme-space-spoon-qx9wr7g66ppfxvg7-10000.app.github.dev";
 
-            async function authFetch(
-                url,
-                options = {}
-            ) {
-
-                const token =
-                    localStorage.getItem("token");
-
+            async function authFetch(url, options = {}) {
+                const token = localStorage.getItem("token");
                 options.headers = {
                     ...(options.headers || {}),
-                    "Authorization":
-                        "Bearer " + token,
-                    "Content-Type":
-                        "application/json"
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
                 };
 
-                const res =
-                    await fetch(url, options);
+                const res = await fetch(url, options);
 
                 if (res.status === 401) {
-
                     alert("Session expired");
-
                     localStorage.clear();
-
-                    window.location.href =
-                        "login.html";
+                    window.location.href = "login.html";
                 }
 
                 return res;
             }
 
             async function loadUsers() {
-
-                const res =
-                    await authFetch(
-                        `${BASE_URL}/users`
-                    );
-
-                const users =
-                    await res.json();
-
-                const table =
-                    document.getElementById(
-                        "usersTable"
-                    );
+                const res = await authFetch(`${BASE_URL}/users`);
+                const users = await res.json();
+                const table = document.getElementById("usersTable");
 
                 table.innerHTML = `
-        <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-            `;
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                `;
 
                 users.forEach(user => {
-
                     table.innerHTML += `
-            <tr>
-                <td>${user.id}</td>
-                <td>${user.username}</td>
-                <td>${user.role}</td>
-                <td>
-                    ${user.is_active ? "Active" : "Disabled"}
-                </td>
-                <td>
-                    <button onclick="toggleUser(${user.id})">
-                        Toggle
-                    </button>
-
-                    <button onclick="deleteUser(${user.id})">
-                        Delete
-                    </button>
-                </td>
-            </tr>
-            `;
+                        <tr>
+                            <td>${user.id}</td>
+                            <td>${user.username}</td>
+                            <td>${user.role}</td>
+                            <td>${user.is_active ? "Active" : "Disabled"}</td>
+                            <td>
+                                <button onclick="toggleUser(${user.id})">Toggle</button>
+                                <button onclick="deleteUser(${user.id})">Delete</button>
+                            </td>
+                        </tr>
+                    `;
                 });
             }
 
             async function createUser() {
-
-                const username =
-                    document.getElementById(
-                        "username"
-                    ).value;
-
-                const password =
-                    document.getElementById(
-                        "password"
-                    ).value;
-
-                const role =
-                    document.getElementById(
-                        "role"
-                    ).value;
-
-                await authFetch(
-                    `${BASE_URL}/users`,
-                    {
-                        method: "POST",
-
-                        body: JSON.stringify({
-                            username,
-                            password,
-                            role
-                        })
-                    }
-                );
-
-                loadUsers();
-            }
-
-            async function toggleUser(id) {
-
-                await authFetch(
-                    `${BASE_URL}/users/${id}/toggle`,
-                    {
-                        method: "PUT"
-                    }
-                );
-
-                loadUsers();
-            }
-
-            async function deleteUser(id) {
-
-                await authFetch(
-                    `${BASE_URL}/users/${id}`,
-                    {
-                        method: "DELETE"
-                    }
-                );
-
-                loadUsers();
-            }
-
-            async function loadItems() {
-
-                const res =
-                    await authFetch(
-                        `${BASE_URL}/admin/items`
-                    );
-
-                const items =
-                    await res.json();
-
-                items.sort((a, b) => a.id - b.id);
-
-                const table =
-                    document.getElementById(
-                        "itemsTable"
-                    );
-
-                table.innerHTML = `
-        <tr>
-            <th>ID</th>
-            <th>Description</th>
-            <th>Unit</th>
-            <th>Price</th>
-            <th>Actions</th>
-        </tr>
-            `;
-
-                items.forEach(item => {
-
-                    table.innerHTML += `
-            <tr>
-                <td>${item.id}</td>
-                <td>${item.description}</td>
-                <td>${item.unit}</td>
-                <td>${item.price}</td>
-                <td>
-                    <button onclick="deleteItem(${item.id})">
-                        Delete
-                    </button>
-                </td>
-            </tr>
-            `;
-                });
-            }
-
-            async function createItem() {
-
-                const description =
-                    document.getElementById(
-                        "itemDescription"
-                    ).value;
-
-                const unit =
-                    document.getElementById(
-                        "itemUnit"
-                    ).value;
-
-                const price =
-                    parseFloat(
-                        document.getElementById(
-                            "itemPrice"
-                        ).value
-                    );
-
-                await authFetch(
-                    `${BASE_URL}/admin/items`,
-                    {
-                        method: "POST",
-
-                        body: JSON.stringify({
-                            description,
-                            unit,
-                            price
-                        })
-                    }
-                );
-
-                loadItems();
-            }
-
-            async function loadSettings() {
-
-                const res =
-                    await authFetch(
-                        `${BASE_URL}/admin/settings`
-                    );
-
-                const data =
-                    await res.json();
-
-                document.getElementById(
-                    "company_name"
-                ).value =
-                    data.company_name || "";
-
-                document.getElementById(
-                    "address1"
-                ).value =
-                    data.address1 || "";
-
-                document.getElementById(
-                    "address2"
-                ).value =
-                    data.address2 || "";
-
-                document.getElementById(
-                    "phone"
-                ).value =
-                    data.phone || "";
-
-                document.getElementById(
-                    "bank_name"
-                ).value =
-                    data.bank_name || "";
-
-                document.getElementById(
-                    "account_holder"
-                ).value =
-                    data.account_holder || "";
-
-                document.getElementById(
-                    "account_number"
-                ).value =
-                    data.account_number || "";
-
-                document.getElementById(
-                    "ifsc"
-                ).value =
-                    data.ifsc || "";
-
-                document.getElementById(
-                    "footer_note"
-                ).value =
-                    data.footer_note || "";
-
-                document.getElementById(
-                    "show_bank_details"
-                ).checked =
-                    data.show_bank_details;
-
-                document.getElementById(
-                    "show_footer_note"
-                ).checked =
-                    data.show_footer_note;
-            }
-
-
-            async function saveSettings() {
-
-                const payload = {
-
-                    company_name:
-                        document.getElementById(
-                            "company_name"
-                        ).value,
-
-                    address1:
-                        document.getElementById(
-                            "address1"
-                        ).value,
-
-                    address2:
-                        document.getElementById(
-                            "address2"
-                        ).value,
-
-                    phone:
-                        document.getElementById(
-                            "phone"
-                        ).value,
-
-                    bank_name:
-                        document.getElementById(
-                            "bank_name"
-                        ).value,
-
-                    account_holder:
-                        document.getElementById(
-                            "account_holder"
-                        ).value,
-
-                    account_number:
-                        document.getElementById(
-                            "account_number"
-                        ).value,
-
-                    ifsc:
-                        document.getElementById(
-                            "ifsc"
-                        ).value,
-
-                    footer_note:
-                        document.getElementById(
-                            "footer_note"
-                        ).value,
-
-                    show_bank_details:
-                        document.getElementById(
-                            "show_bank_details"
-                        ).checked,
-
-                    show_footer_note:
-                        document.getElementById(
-                            "show_footer_note"
-                        ).checked
-                };
-
-                await authFetch(
-                    `${BASE_URL}/admin/settings`,
-                    {
-
-                        method: "PUT",
-
-                        body: JSON.stringify(
-                            payload
-                        )
-                    }
-                );
-
-                alert(
-                    "Settings saved successfully!"
-                );
-            }
-
-            async function deleteItem(id) {
-
-                await authFetch(
-                    `${BASE_URL}/admin/items/${id}`,
-                    {
-                        method: "DELETE"
-                    }
-                );
-
-                loadItems();
-            }
-
-            window.onload = async () => {
-
-                const role =
-                    localStorage.getItem("role");
-
-                if (role !== "admin") {
-
-                    alert("Admin access required");
-
-                    window.location.href =
-                        "index.html";
-
+                const username = document.getElementById("username").value.trim();
+                const password = document.getElementById("password").value;
+                const role = document.getElementById("role").value;
+
+                if (!username || !password) {
+                    alert("Username and password are required");
                     return;
                 }
 
-                showLoader();
-
+                showLoader("Creating User...");
                 try {
+                    const res = await authFetch(`${BASE_URL}/users`, {
+                        method: "POST",
+                        body: JSON.stringify({ username, password, role })
+                    });
 
-                    await Promise.all([
+                    if (!res.ok) {
+                        const errData = await res.json();
+                        alert(errData.detail || "Failed to create user");
+                        return;
+                    }
 
-                        loadSettings(),
-                        loadUsers(),
-                        loadItems()
-
-                    ]);
-
+                    document.getElementById("username").value = "";
+                    document.getElementById("password").value = "";
+                    await loadUsers();
                 } catch (err) {
-
                     console.error(err);
-
-                    alert(
-                        "Failed to load admin panel"
-                    );
-
+                    alert("Server connection failed");
                 } finally {
-
                     hideLoader();
                 }
             }
 
-            function showLoader() {
+            async function toggleUser(id) {
+                showLoader("Updating User...");
+                try {
+                    const res = await authFetch(`${BASE_URL}/users/${id}/toggle`, {
+                        method: "PUT"
+                    });
 
-                document.getElementById(
-                    "pageLoader"
-                ).style.display = "flex";
+                    if (!res.ok) {
+                        const errData = await res.json();
+                        alert(errData.detail || "Failed to toggle user status");
+                        return;
+                    }
+
+                    await loadUsers();
+                } catch (err) {
+                    console.error(err);
+                    alert("Server connection failed");
+                } finally {
+                    hideLoader();
+                }
+            }
+
+            async function deleteUser(id) {
+                if (!confirm("Are you sure you want to delete this user?")) return;
+
+                showLoader("Deleting User...");
+                try {
+                    const res = await authFetch(`${BASE_URL}/users/${id}`, {
+                        method: "DELETE"
+                    });
+
+                    if (!res.ok) {
+                        const errData = await res.json();
+                        alert(errData.detail || "Failed to delete user");
+                        return;
+                    }
+
+                    await loadUsers();
+                } catch (err) {
+                    console.error(err);
+                    alert("Server connection failed");
+                } finally {
+                    hideLoader();
+                }
+            }
+
+            async function loadItems() {
+                const res = await authFetch(`${BASE_URL}/admin/items`);
+                const items = await res.json();
+                items.sort((a, b) => a.id - b.id);
+
+                const table = document.getElementById("itemsTable");
+                table.innerHTML = `
+                    <tr>
+                        <th>ID</th>
+                        <th>Description</th>
+                        <th>Unit</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                `;
+
+                items.forEach(item => {
+                    table.innerHTML += `
+                        <tr>
+                            <td>${item.id}</td>
+                            <td>${item.description}</td>
+                            <td>${item.unit}</td>
+                            <td>${item.price}</td>
+                            <td>
+                                <button onclick="deleteItem(${item.id})">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            async function createItem() {
+                const description = document.getElementById("itemDescription").value.trim();
+                const unit = document.getElementById("itemUnit").value.trim();
+                const price = parseFloat(document.getElementById("itemPrice").value);
+
+                if (!description || !unit || isNaN(price)) {
+                    alert("All fields are required and price must be a number");
+                    return;
+                }
+
+                showLoader("Creating Item...");
+                try {
+                    const res = await authFetch(`${BASE_URL}/admin/items`, {
+                        method: "POST",
+                        body: JSON.stringify({ description, unit, price })
+                    });
+
+                    if (!res.ok) {
+                        const errData = await res.json();
+                        alert(errData.detail || "Failed to create item");
+                        return;
+                    }
+
+                    document.getElementById("itemDescription").value = "";
+                    document.getElementById("itemUnit").value = "";
+                    document.getElementById("itemPrice").value = "";
+                    await loadItems();
+                } catch (err) {
+                    console.error(err);
+                    alert("Server connection failed");
+                } finally {
+                    hideLoader();
+                }
+            }
+
+            async function loadSettings() {
+                const res = await authFetch(`${BASE_URL}/admin/settings`);
+                const data = await res.json();
+
+                document.getElementById("company_name").value = data.company_name || "";
+                document.getElementById("address1").value = data.address1 || "";
+                document.getElementById("address2").value = data.address2 || "";
+                document.getElementById("phone").value = data.phone || "";
+                document.getElementById("bank_name").value = data.bank_name || "";
+                document.getElementById("account_holder").value = data.account_holder || "";
+                document.getElementById("account_number").value = data.account_number || "";
+                document.getElementById("ifsc").value = data.ifsc || "";
+                document.getElementById("footer_note").value = data.footer_note || "";
+                document.getElementById("show_bank_details").checked = data.show_bank_details;
+                document.getElementById("show_footer_note").checked = data.show_footer_note;
+            }
+
+            async function saveSettings() {
+                const payload = {
+                    company_name: document.getElementById("company_name").value,
+                    address1: document.getElementById("address1").value,
+                    address2: document.getElementById("address2").value,
+                    phone: document.getElementById("phone").value,
+                    bank_name: document.getElementById("bank_name").value,
+                    account_holder: document.getElementById("account_holder").value,
+                    account_number: document.getElementById("account_number").value,
+                    ifsc: document.getElementById("ifsc").value,
+                    footer_note: document.getElementById("footer_note").value,
+                    show_bank_details: document.getElementById("show_bank_details").checked,
+                    show_footer_note: document.getElementById("show_footer_note").checked
+                };
+
+                showLoader("Saving Settings...");
+                try {
+                    const res = await authFetch(`${BASE_URL}/admin/settings`, {
+                        method: "PUT",
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!res.ok) {
+                        const errData = await res.json();
+                        alert(errData.detail || "Failed to save settings");
+                        return;
+                    }
+
+                    alert("Settings saved successfully!");
+                } catch (err) {
+                    console.error(err);
+                    alert("Server connection failed");
+                } finally {
+                    hideLoader();
+                }
+            }
+
+            async function deleteItem(id) {
+                if (!confirm("Are you sure you want to delete this item?")) return;
+
+                showLoader("Deleting Item...");
+                try {
+                    const res = await authFetch(`${BASE_URL}/admin/items/${id}`, {
+                        method: "DELETE"
+                    });
+
+                    if (!res.ok) {
+                        const errData = await res.json();
+                        alert(errData.detail || "Failed to delete item");
+                        return;
+                    }
+
+                    await loadItems();
+                } catch (err) {
+                    console.error(err);
+                    alert("Server connection failed");
+                } finally {
+                    hideLoader();
+                }
+            }
+
+            window.onload = async () => {
+                const role = localStorage.getItem("role");
+
+                if (role !== "admin") {
+                    alert("Admin access required");
+                    window.location.href = "index.html";
+                    return;
+                }
+
+                showLoader();
+                try {
+                    await Promise.all([
+                        loadSettings(),
+                        loadUsers(),
+                        loadItems()
+                    ]);
+                } catch (err) {
+                    console.error(err);
+                    alert("Failed to load admin panel");
+                } finally {
+                    hideLoader();
+                }
+            }
+
+            function showLoader(text = "Loading Admin Panel...") {
+                document.getElementById("pageLoaderText").innerText = text;
+                document.getElementById("pageLoader").style.display = "flex";
             }
 
             function hideLoader() {
-
-                document.getElementById(
-                    "pageLoader"
-                ).style.display = "none";
+                document.getElementById("pageLoader").style.display = "none";
             }
-
         </script>
 
 </body>

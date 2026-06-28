@@ -564,400 +564,268 @@
 
         </div>
 
-    </div>
-
-    <script>
+    </div>    <script>
         // Added 12 may 2026 
         checkSession();
 
         const BASE_URL = "https://billing-software-backend-04do.onrender.com";
-        // const BASE_URL = "https://supreme-space-spoon-qx9wr7g66ppfxvg7-10000.app.github.dev";
 
         // 🔥 SESSION CHECK
         function checkSession() {
+            const token = localStorage.getItem("token");
+            const expiry = localStorage.getItem("token_expiry");
 
-            const token =
-                localStorage.getItem("token");
-
-            const expiry =
-                localStorage.getItem("token_expiry");
-
-            // No token
             if (!token || !expiry) {
-
                 logoutUser();
                 return;
             }
 
-            // Expired
             if (Date.now() > parseInt(expiry)) {
-
-                alert(
-                    "Session expired. Please login again."
-                );
-
+                alert("Session expired. Please login again.");
                 logoutUser();
             }
         }
 
         // 🔥 CENTRAL LOGOUT
         function logoutUser() {
-
             localStorage.removeItem("token");
             localStorage.removeItem("role");
-
-            localStorage.removeItem(
-                "token_expiry"
-            );
-
-            localStorage.removeItem(
-                "editBillId"
-            );
-
-            window.location.href =
-                "login.html";
+            localStorage.removeItem("token_expiry");
+            localStorage.removeItem("editBillId");
+            window.location.href = "login.html";
         }
 
         // Feature added 12 may 26
         // 🔥 AUTH FETCH WRAPPER
-        async function authFetch(
-            url,
-            options = {}
-        ) {
-
-            const token =
-                localStorage.getItem("token");
-
+        async function authFetch(url, options = {}) {
+            const token = localStorage.getItem("token");
             options.headers = {
                 ...(options.headers || {}),
-                "Authorization":
-                    "Bearer " + token
+                "Authorization": "Bearer " + token
             };
 
-            const res =
-                await fetch(url, options);
+            const res = await fetch(url, options);
 
-            // 🔥 SESSION EXPIRED
             if (res.status === 401) {
-
-                alert(
-                    "Session expired. Login again."
-                );
-
+                alert("Session expired. Login again.");
                 logoutUser();
-
                 throw new Error("Unauthorized");
             }
 
             return res;
         }
 
-
         let chartInstance = null;
 
         async function loadDashboard() {
-
-            document.getElementById(
-                "dashboardLoader"
-            ).style.display = "flex";
-
-            document.getElementById(
-                "dashboardContent"
-            ).style.display = "none";
+            document.getElementById("dashboardLoader").style.display = "flex";
+            document.getElementById("dashboardContent").style.display = "none";
 
             try {
-
-                const res = await authFetch( // added authFetch instead of fetch - 12 may 2026
-                    `${BASE_URL}/bills`,
-                    {
-                        headers: {
-                            "Authorization":
-                                "Bearer " +
-                                localStorage.getItem("token")
-                        }
+                const res = await authFetch(`${BASE_URL}/bills`, {
+                    headers: {
+                        "Authorization": "Bearer " + localStorage.getItem("token")
                     }
-                );
+                });
 
-                const bills =
-                    await res.json();
+                const bills = await res.json();
 
                 updateCards(bills);
-
                 renderChart(bills);
-
                 renderRecentBills(bills);
 
-                document.getElementById(
-                    "dashboardLoader"
-                ).style.display = "none";
-
-                document.getElementById(
-                    "dashboardContent"
-                ).style.display = "block";
-
+                document.getElementById("dashboardLoader").style.display = "none";
+                document.getElementById("dashboardContent").style.display = "block";
             } catch (err) {
-
                 console.error(err);
-
-                alert(
-                    "Failed to load dashboard"
-                );
+                alert("Failed to load dashboard");
             }
         }
 
         function updateCards(bills) {
-
             let revenue = 0;
-
             bills.forEach(bill => {
-
-                revenue +=
-                    bill.total || 0;
+                revenue += bill.total || 0;
             });
 
-            document.getElementById(
-                "totalRevenue"
-            ).innerText =
-                `₹ ${revenue.toFixed(2)}`;
+            document.getElementById("totalRevenue").innerText = `₹ ${revenue.toFixed(2)}`;
+            document.getElementById("totalBills").innerText = bills.length;
 
-            document.getElementById(
-                "totalBills"
-            ).innerText =
-                bills.length;
-
-            const average =
-                bills.length
-                    ? revenue / bills.length
-                    : 0;
-
-            document.getElementById(
-                "averageBill"
-            ).innerText =
-                `₹ ${average.toFixed(2)}`;
+            const average = bills.length ? revenue / bills.length : 0;
+            document.getElementById("averageBill").innerText = `₹ ${average.toFixed(2)}`;
 
             const customerMap = {};
-
             bills.forEach(bill => {
-
-                customerMap[bill.customer] =
-                    (customerMap[bill.customer] || 0) + 1;
+                customerMap[bill.customer] = (customerMap[bill.customer] || 0) + 1;
             });
 
             let topCustomer = "-";
-
             let max = 0;
 
             for (const customer in customerMap) {
-
                 if (customerMap[customer] > max) {
-
                     max = customerMap[customer];
-
                     topCustomer = customer;
                 }
             }
 
-            document.getElementById(
-                "topCustomer"
-            ).innerText = topCustomer;
+            document.getElementById("topCustomer").innerText = topCustomer;
         }
 
         function renderChart(bills) {
-
-            const ctx =
-                document.getElementById(
-                    "revenueChart"
-                );
+            const ctx = document.getElementById("revenueChart");
 
             if (chartInstance) {
-
                 chartInstance.destroy();
             }
 
             chartInstance = new Chart(ctx, {
-
                 type: "line",
-
                 data: {
-
-                    labels:
-                        bills.map(
-                            bill => `Bill ${bill.id}`
-                        ),
-
+                    labels: bills.map(bill => `Bill ${bill.id}`),
                     datasets: [{
-
                         label: "Revenue",
-
-                        data:
-                            bills.map(
-                                bill => bill.total || 0
-                            ),
-
+                        data: bills.map(bill => bill.total || 0),
                         borderWidth: 3,
-
                         tension: 0.35,
-
                         fill: true
                     }]
                 },
-
                 options: {
-
                     responsive: true
                 }
             });
         }
 
         function renderRecentBills(bills) {
-
-            const table =
-                document.getElementById(
-                    "recentBillsTable"
-                );
-
+            const table = document.getElementById("recentBillsTable");
             table.innerHTML = "";
 
             bills
                 .slice(-5)
                 .reverse()
                 .forEach(bill => {
-
                     table.innerHTML += `
-
                         <tr>
-
                             <td>${bill.id}</td>
-
                             <td>${bill.customer}</td>
-
+                            <td>₹ ${bill.total?.toFixed(2)}</td>
                             <td>
-                                ₹ ${bill.total?.toFixed(2)}
+                                <button class="action-btn view-btn" onclick="viewBill(${bill.id})">View</button>
+                                <button class="action-btn edit-btn" onclick="editBill(${bill.id})">Edit</button>
+                                <button class="action-btn delete-btn" onclick="deleteBill(${bill.id})">Delete</button>
                             </td>
-
-                            <td>
-
-                                <button
-                                    class="action-btn view-btn"
-                                    onclick="viewBill(${bill.id})"
-                                >
-                                    View
-                                </button>
-
-                                <button
-                                    class="action-btn edit-btn"
-                                    onclick="editBill(${bill.id})"
-                                >
-                                    Edit
-                                </button>
-
-                                <button
-                                    class="action-btn delete-btn"
-                                    onclick="deleteBill(${bill.id})"
-                                >
-                                    Delete
-                                </button>
-
-                            </td>
-
                         </tr>
                     `;
                 });
         }
 
+        function createActionLoader() {
+            if (document.getElementById("actionLoader")) {
+                return document.getElementById("actionLoader");
+            }
+            const loader = document.createElement("div");
+            loader.id = "actionLoader";
+            loader.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);z-index:9999;";
+            loader.innerHTML = `
+                <div class="card" style="text-align:center; min-width:240px; border:1px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.2); box-shadow:0 10px 30px rgba(0,0,0,0.35); padding: 30px; border-radius: 18px; color: #fff;">
+                    <div class="spinner" style="width:50px; height:50px; margin:0 auto 15px; border-color:rgba(255,255,255,0.2); border-top-color:#fff;"></div>
+                    <div id="loaderText" style="font-size:16px; font-weight:500; color:#fff;">Loading...</div>
+                </div>
+            `;
+            document.body.appendChild(loader);
+            return loader;
+        }
+
+        function showActionLoader(message) {
+            const loader = createActionLoader();
+            const textEl = loader.querySelector("#loaderText");
+            if (textEl) {
+                textEl.innerText = message;
+            }
+            loader.style.display = "flex";
+        }
+
+        function hideActionLoader() {
+            const loader = document.getElementById("actionLoader");
+            if (loader) {
+                loader.style.display = "none";
+            }
+        }
+
         async function viewBill(id) {
-
-            const res = await authFetch( // added authFetch instead of fetch - 12 may 2026
-                `${BASE_URL}/bills/${id}/pdf`,
-                {
+            showActionLoader("Opening PDF...");
+            try {
+                const res = await authFetch(`${BASE_URL}/bills/${id}/pdf`, {
                     headers: {
-                        "Authorization":
-                            "Bearer " +
-                            localStorage.getItem("token")
+                        "Authorization": "Bearer " + localStorage.getItem("token")
                     }
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    alert(data.detail || "Failed to load PDF");
+                    return;
                 }
-            );
 
-            const data =
-                await res.json();
-
-            window.open(
-                data.pdf_url,
-                "_blank"
-            );
+                window.open(data.pdf_url, "_blank");
+            } catch (err) {
+                console.error(err);
+                alert("Server connection failed");
+            } finally {
+                hideActionLoader();
+            }
         }
 
         function editBill(id) {
-
-            localStorage.setItem(
-                "editBillId",
-                id
-            );
-
-            window.location.href =
-                "index.html";
+            localStorage.setItem("editBillId", id);
+            window.location.href = "index.html";
         }
 
         async function deleteBill(id) {
+            if (!confirm("Delete this bill?")) return;
 
-            if (!confirm(
-                "Delete this bill?"
-            )) return;
-
-            await authFetch( // added authFetch instead of fetch - 12 may 2026
-                `${BASE_URL}/bills/${id}`,
-                {
+            showActionLoader("Deleting Bill...");
+            try {
+                const res = await authFetch(`${BASE_URL}/bills/${id}`, {
                     method: "DELETE",
-
                     headers: {
-                        "Authorization":
-                            "Bearer " +
-                            localStorage.getItem("token")
+                        "Authorization": "Bearer " + localStorage.getItem("token")
                     }
-                }
-            );
+                });
 
-            loadDashboard();
+                if (!res.ok) {
+                    const data = await res.json();
+                    alert(data.detail || "Delete failed");
+                    return;
+                }
+
+                await loadDashboard();
+            } catch (err) {
+                console.error(err);
+                alert("Server connection failed");
+            } finally {
+                hideActionLoader();
+            }
         }
 
         function exportCSV() {
+            let csv = "ID,Customer,Total\n";
 
-            let csv =
-                "ID,Customer,Total\n";
-
-            document.querySelectorAll(
-                "#recentBillsTable tr"
-            ).forEach(row => {
-
-                const cols =
-                    row.querySelectorAll("td");
-
-                csv +=
-                    `${cols[0].innerText},` +
-                    `${cols[1].innerText},` +
-                    `${cols[2].innerText}\n`;
+            document.querySelectorAll("#recentBillsTable tr").forEach(row => {
+                const cols = row.querySelectorAll("td");
+                csv += `${cols[0].innerText},${cols[1].innerText},${cols[2].innerText}\n`;
             });
 
-            const blob =
-                new Blob([csv], {
-                    type: "text/csv"
-                });
-
-            const url =
-                URL.createObjectURL(blob);
-
-            const a =
-                document.createElement("a");
-
+            const blob = new Blob([csv], { type: "text/csv" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
             a.href = url;
-
-            a.download =
-                "billing-data.csv";
-
+            a.download = "billing-data.csv";
             a.click();
         }
 
-        // Added 12 may 2026
         function logout() {
             logoutUser();
         }
@@ -970,13 +838,10 @@
         loadDashboard();
 
         const role = localStorage.getItem("role");
-
         if (role === "admin") {
             document.getElementById("adminBtn").style.display = "block";
         }
-
     </script>
-
 </body>
 
 </html>
